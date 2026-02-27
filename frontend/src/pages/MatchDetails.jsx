@@ -1,0 +1,281 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { format } from 'date-fns';
+
+function MatchDetails({ user }) {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [match, setMatch] = useState(null);
+    const [myPrediction, setMyPrediction] = useState(null);
+    const [publicPredictions, setPublicPredictions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    const [formData, setFormData] = useState({
+        predicted_winner: '',
+        predicted_run_scorer: '',
+        predicted_wicket_taker: '',
+        predicted_potm: ''
+    });
+
+    useEffect(() => {
+        fetchData();
+    }, [id]);
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const token = Cookies.get('token');
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+
+            // 1. Fetch match details
+            const matchRes = await axios.get(`http://localhost:8080/api/matches/${id}`, config);
+            setMatch(matchRes.data);
+
+            // 2. Fetch my prediction
+            const myPredRes = await axios.get('http://localhost:8080/api/predictions/me', config);
+            const predictionForThisMatch = myPredRes.data.find(p => p.match_id === parseInt(id));
+
+            if (predictionForThisMatch) {
+                setMyPrediction(predictionForThisMatch);
+                setFormData({
+                    predicted_winner: predictionForThisMatch.predicted_winner,
+                    predicted_run_scorer: predictionForThisMatch.predicted_run_scorer,
+                    predicted_wicket_taker: predictionForThisMatch.predicted_wicket_taker,
+                    predicted_potm: predictionForThisMatch.predicted_potm
+                });
+            }
+
+            // 3. Fetch public predictions if match is completed
+            if (matchRes.data.status === 'completed') {
+                const publicRes = await axios.get(`http://localhost:8080/api/matches/${id}/predictions`, config);
+                setPublicPredictions(publicRes.data || []);
+            }
+
+        } catch (err) {
+            console.error(err);
+            setError('Failed to load match details');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePredict = async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            const token = Cookies.get('token');
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+
+            const payload = {
+                match_id: parseInt(id),
+                ...formData
+            };
+
+            await axios.post('http://localhost:8080/api/predictions', payload, config);
+            setSuccess('Prediction saved successfully!');
+            fetchData(); // Refresh to update view
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to save prediction');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) return <div style={{ textAlign: 'center', padding: '3rem' }}>Loading Match Data...</div>;
+    if (!match) return <div style={{ textAlign: 'center', padding: '3rem' }}>Match not found.</div>;
+
+    return (
+        <div>
+            <button
+                onClick={() => navigate('/')}
+                className="btn btn-secondary"
+                style={{ marginBottom: '2rem', padding: '0.5rem 1rem' }}
+            >
+                ← Back to Schedule
+            </button>
+
+            {/* MATCH HEADER */}
+            <div className="glass-panel" style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                <h2 style={{ fontSize: '2.5rem', margin: '1rem 0' }}>{match.team1} vs {match.team2}</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>
+                    {format(new Date(match.match_date), 'MMMM do, yyyy - hh:mm a')}
+                </p>
+                <div style={{ marginTop: '1rem' }}>
+                    <span style={{
+                        background: match.status === 'completed' ? '#10b981' : match.status === 'active' ? '#ef4444' : '#3b82f6',
+                        padding: '6px 16px',
+                        borderRadius: '20px',
+                        fontSize: '0.9rem',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase'
+                    }}>
+                        {match.status}
+                    </span>
+                </div>
+            </div>
+
+            <div className="grid grid-2">
+                {/* PREDICTION FORM OR RESULTS */}
+                <div className="glass-panel">
+                    {match.status === 'upcoming' ? (
+                        <>
+                            <h3>Your Predictions</h3>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                                Predict before the match starts. You can change it until then.
+                            </p>
+
+                            {error && <div style={{ color: '#ef4444', marginBottom: '1rem' }}>{error}</div>}
+                            {success && <div style={{ color: '#10b981', marginBottom: '1rem' }}>{success}</div>}
+
+                            <form onSubmit={handlePredict}>
+                                <div className="form-group">
+                                    <label>Predicted Winner (2 pts)</label>
+                                    <select
+                                        className="form-control"
+                                        value={formData.predicted_winner}
+                                        onChange={e => setFormData({ ...formData, predicted_winner: e.target.value })}
+                                        required
+                                    >
+                                        <option value="">Select Team...</option>
+                                        <option value={match.team1}>{match.team1}</option>
+                                        <option value={match.team2}>{match.team2}</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Highest Run Scorer (2 pts)</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Enter Player Name"
+                                        value={formData.predicted_run_scorer}
+                                        onChange={e => setFormData({ ...formData, predicted_run_scorer: e.target.value })}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Highest Wicket Taker (2 pts)</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Enter Player Name"
+                                        value={formData.predicted_wicket_taker}
+                                        onChange={e => setFormData({ ...formData, predicted_wicket_taker: e.target.value })}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Player of the Match (5 pts)</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Enter Player Name"
+                                        value={formData.predicted_potm}
+                                        onChange={e => setFormData({ ...formData, predicted_potm: e.target.value })}
+                                        required
+                                    />
+                                </div>
+
+                                <button type="submit" className="btn" style={{ width: '100%', marginTop: '1rem' }} disabled={saving}>
+                                    {saving ? 'Saving...' : (myPrediction ? 'Update Prediction' : 'Submit Prediction')}
+                                </button>
+                            </form>
+                        </>
+                    ) : (
+                        <>
+                            <h3>Actual Results</h3>
+                            {match.status === 'active' ? (
+                                <p style={{ color: 'var(--text-muted)' }}>Match is currently live. Results will be updated once finished.</p>
+                            ) : (
+                                <div style={{ marginTop: '1.5rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--border-color)' }}>
+                                        <span style={{ color: 'var(--text-muted)' }}>Winner</span>
+                                        <strong>{match.actual_winner}</strong>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--border-color)' }}>
+                                        <span style={{ color: 'var(--text-muted)' }}>Highest Run Scorer</span>
+                                        <strong>{match.actual_run_scorer}</strong>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--border-color)' }}>
+                                        <span style={{ color: 'var(--text-muted)' }}>Highest Wicket Taker</span>
+                                        <strong>{match.actual_wicket_taker}</strong>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0' }}>
+                                        <span style={{ color: 'var(--text-muted)' }}>Player of the Match</span>
+                                        <strong>{match.actual_potm}</strong>
+                                    </div>
+
+                                    {myPrediction && (
+                                        <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid #10b981' }}>
+                                            <h4 style={{ color: '#10b981', marginBottom: '0.5rem' }}>Your Points Earned</h4>
+                                            <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>+{myPrediction.points_earned} pts</div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+
+                {/* PUBLIC PREDICTIONS / MY LOCKED PREDICTION */}
+                <div className="glass-panel">
+                    {match.status === 'upcoming' ? (
+                        <div style={{ textAlign: 'center', paddingTop: '2rem' }}>
+                            <h3>Other Users' Predictions</h3>
+                            <div style={{ padding: '3rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', marginTop: '1rem' }}>
+                                <span style={{ fontSize: '2rem' }}>🔒</span>
+                                <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>
+                                    Hidden until the match starts to prevent cheating.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <h3>Community Predictions</h3>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                                See what everyone else predicted and how many points they earned.
+                            </p>
+
+                            {publicPredictions.length === 0 ? (
+                                <p style={{ color: 'var(--text-muted)' }}>No predictions found for this match.</p>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+                                    {publicPredictions.map((p, idx) => (
+                                        <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: p.username === user.username ? '1px solid var(--primary)' : '1px solid var(--border-color)' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                                <strong style={{ color: p.username === user.username ? 'var(--primary)' : 'white' }}>
+                                                    {p.username} {p.username === user.username && '(You)'}
+                                                </strong>
+                                                <span style={{ color: '#10b981', fontWeight: 'bold' }}>+{p.points_earned} pts</span>
+                                            </div>
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                                <div><span style={{ color: 'var(--text-muted)' }}>Winner:</span> {p.predicted_winner}</div>
+                                                <div><span style={{ color: 'var(--text-muted)' }}>POTM:</span> {p.predicted_potm}</div>
+                                                <div><span style={{ color: 'var(--text-muted)' }}>Runs:</span> {p.predicted_run_scorer}</div>
+                                                <div><span style={{ color: 'var(--text-muted)' }}>Wickets:</span> {p.predicted_wicket_taker}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default MatchDetails;
