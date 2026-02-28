@@ -14,7 +14,7 @@ function Register({ login }) {
 
         try {
             const response = await api.post('/api/register', formData);
-            login(response.data.user, response.data.token);
+            login(response.data.user);
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed. Please try again.');
         } finally {

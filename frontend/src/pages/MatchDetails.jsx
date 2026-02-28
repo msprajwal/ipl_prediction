@@ -30,15 +30,13 @@ function MatchDetails({ user }) {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const token = Cookies.get('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
 
             // 1. Fetch match details
-            const matchRes = await api.get(`/api/matches/${id}`, config);
+            const matchRes = await api.get(`/api/matches/${id}`);
             setMatch(matchRes.data);
 
             // 2. Fetch my prediction
-            const myPredRes = await api.get('/api/user/predictions/me', config);
+            const myPredRes = await api.get('/api/user/predictions/me');
             const predictionForThisMatch = myPredRes.data.find(p => p.match_id === parseInt(id));
 
             if (predictionForThisMatch) {
@@ -55,7 +53,7 @@ function MatchDetails({ user }) {
             const matchTimePassed = new Date() >= new Date(matchRes.data.match_date);
             if (matchRes.data.status === 'completed' || matchTimePassed) {
                 try {
-                    const publicRes = await api.get(`/api/user/matches/${id}/predictions`, config);
+                    const publicRes = await api.get(`/api/user/matches/${id}/predictions`);
                     setPublicPredictions(publicRes.data || []);
                 } catch (e) {
                     // 403 = not all users predicted yet and match hasn't started, ignore
@@ -77,15 +75,11 @@ function MatchDetails({ user }) {
         setSuccess('');
 
         try {
-            const token = Cookies.get('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-
             const payload = {
                 match_id: parseInt(id),
                 ...formData
             };
-
-            await api.post('/api/user/predictions', payload, config);
+            await api.post('/api/user/predictions', payload);
             setSuccess('Prediction saved successfully!');
             fetchData(); // Refresh to update view
         } catch (err) {

@@ -39,13 +39,12 @@ function AdminPanel({ user }) {
         setError('');
         setSuccess('');
         try {
-            const token = Cookies.get('token');
             const timeValue = newMatch.match_time === 'custom' ? newMatch.custom_time : newMatch.match_time;
             await api.post('/api/admin/matches', {
                 team1: newMatch.team1,
                 team2: newMatch.team2,
                 match_date: new Date(`${newMatch.match_date}T${timeValue}:00`).toISOString()
-            }, { headers: { Authorization: `Bearer ${token}` } });
+            });
             setSuccess('Match created successfully!');
             setNewMatch({ team1: '', team2: '', match_date: '', match_time: '19:30' });
             fetchMatches();
@@ -58,10 +57,7 @@ function AdminPanel({ user }) {
         setError('');
         setSuccess('');
         try {
-            const token = Cookies.get('token');
-            await api.put(`/api/admin/matches/${matchId}/result`, resultForm, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.put(`/api/admin/matches/${matchId}/result`, resultForm);
             setSuccess(`Match #${matchId} result updated and points calculated!`);
             setActiveResultId(null);
             setResultForm({});

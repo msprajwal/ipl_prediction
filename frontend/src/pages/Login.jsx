@@ -14,7 +14,7 @@ function Login({ login }) {
 
         try {
             const response = await api.post('/api/login', formData);
-            login(response.data.user, response.data.token);
+            login(response.data.user);
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed. Please try again.');
         } finally {

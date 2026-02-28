@@ -17,12 +17,10 @@ function App() {
   const [user, setUser] = useState(null);
 
   const refreshUser = useCallback(async () => {
-    const token = Cookies.get('token');
-    if (!token) return;
+    const userDataStr = Cookies.get('user');
+    if (!userDataStr) return;
     try {
-      const res = await api.get('/api/user/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('/api/user/me');
       setUser(res.data);
       Cookies.set('user', JSON.stringify(res.data), { expires: 7 });
     } catch (err) {
@@ -31,24 +29,24 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const token = Cookies.get('token');
     const userData = Cookies.get('user');
-    if (token && userData) {
+    if (userData) {
       setIsAuthenticated(true);
       setUser(JSON.parse(userData));
       refreshUser(); // fetch latest from server
     }
   }, [refreshUser]);
 
-  const login = (userData, token) => {
-    Cookies.set('token', token, { expires: 7 });
+  const login = (userData) => {
     Cookies.set('user', JSON.stringify(userData), { expires: 7 });
     setIsAuthenticated(true);
     setUser(userData);
   };
 
-  const logout = () => {
-    Cookies.remove('token');
+  const logout = async () => {
+    try {
+      await api.post('/api/logout');
+    } catch (e) { }
     Cookies.remove('user');
     setIsAuthenticated(false);
     setUser(null);
