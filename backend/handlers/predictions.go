@@ -69,11 +69,17 @@ func SubmitPrediction(c *gin.Context) {
 		db.DB.Create(&prediction)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Prediction submitted successfully", "prediction": prediction})
-
 	// Get username for detailed logging
 	username, _ := c.Get("username")
-	log.Printf("[ACTIVITY] User '%s' submitted prediction for Match #%d: Winner: %s, POTM: %s", username, input.MatchID, input.PredictedWinner, input.PredictedPOTM)
+	if result.RowsAffected > 0 {
+		log.Printf("[ACTIVITY] User '%s' updated their prediction for %s vs %s (Match #%d)",
+			username, match.Team1, match.Team2, input.MatchID)
+	} else {
+		log.Printf("[ACTIVITY] User '%s' submitted a prediction for %s vs %s (Match #%d)",
+			username, match.Team1, match.Team2, input.MatchID)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Prediction submitted successfully", "prediction": prediction})
 }
 
 func GetMyPredictions(c *gin.Context) {

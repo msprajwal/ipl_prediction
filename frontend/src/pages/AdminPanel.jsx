@@ -217,6 +217,31 @@ function AdminPanel({ user }) {
                     </div>
                 )}
             </div>
+
+            {/* DANGER ZONE - RESET DB */}
+            <div className="glass-panel" style={{ marginTop: '2rem', border: '1px solid #ef4444' }}>
+                <h3 style={{ color: '#ef4444' }}>⚠️ Danger Zone</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                    This will delete ALL users (except admin), matches, and predictions. Everyone will need to re-register.
+                </p>
+                <button
+                    className="btn"
+                    style={{ background: '#ef4444', border: 'none' }}
+                    onClick={async () => {
+                        if (window.confirm('⚠️ Are you sure? This will DELETE all users, matches, and predictions. This cannot be undone!')) {
+                            try {
+                                const res = await api.post('/api/admin/reset-db');
+                                setSuccess(res.data.message);
+                                setMatches([]);
+                            } catch (err) {
+                                setError(err.response?.data?.error || 'Failed to reset database');
+                            }
+                        }
+                    }}
+                >
+                    🗑️ Reset Entire Database
+                </button>
+            </div>
         </div>
     );
 }

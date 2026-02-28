@@ -62,9 +62,11 @@ func main() {
 	// Setup Gin router
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
+		AllowOriginFunc: func(origin string) bool {
+			return true // Allow all origins dynamically (required when credentials are enabled)
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))

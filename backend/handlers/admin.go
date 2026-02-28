@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"ipl-prediction-backend/db"
@@ -8,6 +9,36 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+// ResetDatabase clears all data except the admin user
+func ResetDatabase(c *gin.Context) {
+	// Delete all predictions
+	if err := db.DB.Exec("DELETE FROM predictions").Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete predictions"})
+		return
+	}
+
+	// Delete all matches
+	if err := db.DB.Exec("DELETE FROM matches").Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete matches"})
+		return
+	}
+
+	// Delete all users except admin
+	if err := db.DB.Exec("DELETE FROM users WHERE username != 'msprajwal'").Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete users"})
+		return
+	}
+
+	// Reset admin points to 0
+	db.DB.Exec("UPDATE users SET total_points = 0")
+
+	// Reset auto-increment sequences
+	db.DB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('matches', 'predictions')")
+
+	log.Println("[ADMIN] Database has been reset by admin.")
+	c.JSON(http.StatusOK, gin.H{"message": "Database reset successfully. All users (except admin), matches, and predictions have been removed."})
+}
 
 // Admin-only struct to update match results
 type UpdateMatchResultInput struct {
