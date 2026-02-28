@@ -13,6 +13,7 @@ func SetupRouter(r *gin.Engine) {
 	// Auth routes (Public)
 	api.POST("/register", handlers.Register)
 	api.POST("/login", handlers.Login)
+	api.POST("/logout", handlers.Logout)
 
 	// Match routes (Public)
 	api.GET("/matches", handlers.GetMatches)

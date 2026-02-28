@@ -6,10 +6,8 @@ A full-stack web application built for friends to predict IPL (Indian Premier Le
 - **Frontend**: React (Vite), React Router, Axios, CSS Glassmorphism UI
 - **Backend**: Go (Golang), Gin Web Framework, GORM
 - **Database**: SQLite
-- **Authentication**: JWT (JSON Web Tokens) with secure HttpOnly cookies
 
 ## Features
-- **User Authentication**: Secure registration and login flow.
 - **Match Predictions**: Predict the match winner, highest run-scorer, highest wicket-taker, and Player of the Match (POTM).
 - **Time-Locked Predictions**: Predictions are automatically locked once a match's scheduled start time passes.
 - **Community Viewing**: Once a match starts, all users' predictions become visible to everyone.
@@ -74,13 +72,9 @@ If you want to host this temporarily to play with friends, you can use [ngrok](h
    ```
 4. Ngrok will give you a public `https://...ngrok-free.dev` URL. Share this link with your friends!
 
-> **Note on Security:** This application uses **HttpOnly cookies** for JWT authentication, making it secure against Cross-Site Scripting (XSS) attacks even when shared over ngrok.
-
 ---
 
 ## 👨‍💼 Admin Access
-The system automatically creates an Admin account on the first run.
-- **Username**: `msprajwal`
-- **Password**: `ipl2026`
+The system automatically creates an Admin account on the first run for the username `msprajwal`.
 
 Use this account to access the `/admin` portal to add new IPL matches to the schedule and update their final results.

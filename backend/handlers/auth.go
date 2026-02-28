@@ -65,9 +65,11 @@ func Register(c *gin.Context) {
 
 	log.Printf("[ACTIVITY] User '%s' registered successfully.", user.Username)
 
+	// Set HttpOnly cookie (name, value, maxAge, path, domain, secure, httpOnly)
+	c.SetCookie("token", token, 7200, "/", "", false, true)
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User registered successfully",
-		"token":   token,
 		"user": gin.H{
 			"id":       user.ID,
 			"username": user.Username,
@@ -105,9 +107,11 @@ func Login(c *gin.Context) {
 
 	log.Printf("[ACTIVITY] User '%s' logged in successfully.", user.Username)
 
+	// Set HttpOnly cookie
+	c.SetCookie("token", token, 7200, "/", "", false, true)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logged in successfully",
-		"token":   token,
 		"user": gin.H{
 			"id":       user.ID,
 			"username": user.Username,
@@ -115,6 +119,17 @@ func Login(c *gin.Context) {
 			"role":     user.Role,
 		},
 	})
+}
+
+func Logout(c *gin.Context) {
+	username, exists := c.Get("username")
+	if exists {
+		log.Printf("[ACTIVITY] User '%s' logged out.", username)
+	}
+
+	// Clear the cookie by setting maxAge to -1
+	c.SetCookie("token", "", -1, "/", "", false, true)
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
 func GetMe(c *gin.Context) {

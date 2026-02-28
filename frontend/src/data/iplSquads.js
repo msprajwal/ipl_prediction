@@ -86,6 +86,22 @@ const iplSquads = {
         "Kwena Maphaka", "Nandre Burger", "Ravi Bishnoi", "Sushant Mishra",
         "Yash Raj Punja", "Vignesh Puthur", "Ravi Singh", "Aman Rao",
         "Brijesh Sharma", "Adam Milne", "Kuldeep Sen"
+    ],
+    SL: [
+        "Pathum Nissanka", "Kamil Mishara", "Kusal Mendis", "Kusal Janith Perera",
+        "Charith Asalanka", "Janith Liyanage", "Pavan Rathnayake", "Dasun Shanaka",
+        "Kamindu Mendis", "Dushan Hemantha", "Dunith Wellalage", "Wanindu Hasaranga",
+        "Dhananjaya De Silva", "Sahan Arachchige", "Niroshan Dickwella",
+        "Maheesh Theekshana", "Dushmantha Chameera", "Dilshan Madushanka",
+        "Eshan Malinga", "Milan Rathnayake", "Nuwan Thushara", "Pramod Madushan",
+        "Matheesha Pathirana", "Vijayakanth Viyaskanth", "Traveen Mathew"
+    ],
+    PAK: [
+        "Salman Ali Agha", "Abrar Ahmed", "Babar Azam", "Faheem Ashraf",
+        "Fakhar Zaman", "Khawaja Mohammad Nafay", "Mohammad Nawaz",
+        "Mohammad Salman Mirza", "Naseem Shah", "Sahibzada Farhan",
+        "Saim Ayub", "Shaheen Shah Afridi", "Shadab Khan", "Usman Khan",
+        "Usman Tariq"
     ]
 };
 

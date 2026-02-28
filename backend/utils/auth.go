@@ -39,7 +39,7 @@ func GenerateToken(user models.User) (string, error) {
 		"user_id":  user.ID,
 		"username": user.Username,
 		"role":     user.Role,
-		"exp":      time.Now().Add(time.Hour * 72).Unix(),
+		"exp":      time.Now().Add(time.Hour * 2).Unix(),
 	})
 
 	tokenString, err := token.SignedString(jwtSecret)
