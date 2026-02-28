@@ -69,6 +69,10 @@ func SubmitPrediction(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Prediction submitted successfully", "prediction": prediction})
+
+	// Get username for detailed logging
+	username, _ := c.Get("username")
+	log.Printf("[ACTIVITY] User '%s' submitted prediction for Match #%d: Winner: %s, POTM: %s", username, input.MatchID, input.PredictedWinner, input.PredictedPOTM)
 }
 
 func GetMyPredictions(c *gin.Context) {

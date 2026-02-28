@@ -62,6 +62,8 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	log.Printf("[ACTIVITY] User '%s' registered successfully.", user.Username)
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User registered successfully",
 		"token":   token,
@@ -99,6 +101,8 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
 	}
+
+	log.Printf("[ACTIVITY] User '%s' logged in successfully.", user.Username)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logged in successfully",

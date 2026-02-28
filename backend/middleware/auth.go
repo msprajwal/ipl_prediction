@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
@@ -47,5 +48,8 @@ func AuthRequired() gin.HandlerFunc {
 			c.Set("userRole", "user")
 		}
 		c.Next()
+
+		// Log activity after the request is processed
+		log.Printf("[ACTIVITY] User '%s' accessed %s %s", claims["username"], c.Request.Method, c.Request.URL.Path)
 	}
 }
