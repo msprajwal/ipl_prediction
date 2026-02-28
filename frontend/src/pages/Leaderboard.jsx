@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 function Leaderboard() {
     const [leaderboard, setLeaderboard] = useState([]);
@@ -8,7 +8,7 @@ function Leaderboard() {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const response = await axios.get('http://localhost:8081/api/leaderboard');
+                const response = await api.get('/api/leaderboard');
                 setLeaderboard(response.data || []);
             } catch (error) {
                 console.error("Error fetching leaderboard", error);

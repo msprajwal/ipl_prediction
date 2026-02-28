@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 function Register({ login }) {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
@@ -13,7 +13,7 @@ function Register({ login }) {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:8081/api/register', formData);
+            const response = await api.post('/api/register', formData);
             login(response.data.user, response.data.token);
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed. Please try again.');

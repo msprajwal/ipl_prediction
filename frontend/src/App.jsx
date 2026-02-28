@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
 import Cookies from 'js-cookie';
-import axios from 'axios';
+import api from './api';
 
 // Pages
 import Login from './pages/Login';
@@ -20,7 +20,7 @@ function App() {
     const token = Cookies.get('token');
     if (!token) return;
     try {
-      const res = await axios.get('http://localhost:8081/api/user/me', {
+      const res = await api.get('/api/user/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(res.data);

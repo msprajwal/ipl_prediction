@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import Cookies from 'js-cookie';
 import { format } from 'date-fns';
 import iplSquads from '../data/iplSquads';
@@ -34,11 +34,11 @@ function MatchDetails({ user }) {
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
             // 1. Fetch match details
-            const matchRes = await axios.get(`http://localhost:8081/api/matches/${id}`, config);
+            const matchRes = await api.get(`/api/matches/${id}`, config);
             setMatch(matchRes.data);
 
             // 2. Fetch my prediction
-            const myPredRes = await axios.get('http://localhost:8081/api/user/predictions/me', config);
+            const myPredRes = await api.get('/api/user/predictions/me', config);
             const predictionForThisMatch = myPredRes.data.find(p => p.match_id === parseInt(id));
 
             if (predictionForThisMatch) {
@@ -55,7 +55,7 @@ function MatchDetails({ user }) {
             const matchTimePassed = new Date() >= new Date(matchRes.data.match_date);
             if (matchRes.data.status === 'completed' || matchTimePassed) {
                 try {
-                    const publicRes = await axios.get(`http://localhost:8081/api/user/matches/${id}/predictions`, config);
+                    const publicRes = await api.get(`/api/user/matches/${id}/predictions`, config);
                     setPublicPredictions(publicRes.data || []);
                 } catch (e) {
                     // 403 = not all users predicted yet and match hasn't started, ignore
@@ -85,7 +85,7 @@ function MatchDetails({ user }) {
                 ...formData
             };
 
-            await axios.post('http://localhost:8081/api/user/predictions', payload, config);
+            await api.post('/api/user/predictions', payload, config);
             setSuccess('Prediction saved successfully!');
             fetchData(); // Refresh to update view
         } catch (err) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import Cookies from 'js-cookie';
 import { format } from 'date-fns';
 import iplSquads from '../data/iplSquads';
@@ -25,7 +25,7 @@ function AdminPanel({ user }) {
 
     const fetchMatches = async () => {
         try {
-            const res = await axios.get('http://localhost:8081/api/matches');
+            const res = await api.get('/api/matches');
             setMatches(res.data || []);
         } catch (err) {
             setError('Failed to load matches');
@@ -41,7 +41,7 @@ function AdminPanel({ user }) {
         try {
             const token = Cookies.get('token');
             const timeValue = newMatch.match_time === 'custom' ? newMatch.custom_time : newMatch.match_time;
-            await axios.post('http://localhost:8081/api/admin/matches', {
+            await api.post('/api/admin/matches', {
                 team1: newMatch.team1,
                 team2: newMatch.team2,
                 match_date: new Date(`${newMatch.match_date}T${timeValue}:00`).toISOString()
@@ -59,7 +59,7 @@ function AdminPanel({ user }) {
         setSuccess('');
         try {
             const token = Cookies.get('token');
-            await axios.put(`http://localhost:8081/api/admin/matches/${matchId}/result`, resultForm, {
+            await api.put(`/api/admin/matches/${matchId}/result`, resultForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSuccess(`Match #${matchId} result updated and points calculated!`);

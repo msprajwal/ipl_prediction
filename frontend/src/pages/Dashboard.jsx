@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { format } from 'date-fns';
 
 function Dashboard() {
@@ -10,7 +10,7 @@ function Dashboard() {
     useEffect(() => {
         const fetchMatches = async () => {
             try {
-                const response = await axios.get('http://localhost:8081/api/matches');
+                const response = await api.get('/api/matches');
                 setMatches(response.data || []);
             } catch (error) {
                 console.error("Error fetching matches", error);

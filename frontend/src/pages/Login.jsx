@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 function Login({ login }) {
     const [formData, setFormData] = useState({ login: '', password: '' });
@@ -13,7 +13,7 @@ function Login({ login }) {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:8081/api/login', formData);
+            const response = await api.post('/api/login', formData);
             login(response.data.user, response.data.token);
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed. Please try again.');
