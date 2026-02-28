@@ -71,10 +71,3 @@ If you want to host this temporarily to play with friends, you can use [ngrok](h
    ngrok http 8081
    ```
 4. Ngrok will give you a public `https://...ngrok-free.dev` URL. Share this link with your friends!
-
----
-
-## 👨‍💼 Admin Access
-The system automatically creates an Admin account on the first run for the username `msprajwal`.
-
-Use this account to access the `/admin` portal to add new IPL matches to the schedule and update their final results.
