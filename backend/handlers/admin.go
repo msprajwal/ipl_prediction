@@ -18,11 +18,12 @@ type UpdateMatchResultInput struct {
 	ActualPOTM        string `json:"actual_potm" binding:"required"`
 }
 
-// Simple admin middleware alternative for now - just checks a hardcoded secret in headers
+// AdminRequired checks that the authenticated user has the "admin" role.
+// Must be used AFTER middleware.AuthRequired() so that userRole is set in context.
 func AdminRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		secret := c.GetHeader("X-Admin-Secret")
-		if secret != "super_secret_admin_key" { // In real app, put in .env
+		role, exists := c.Get("userRole")
+		if !exists || role != "admin" {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
 			return
 		}
@@ -70,13 +71,13 @@ func UpdateMatchResult(c *gin.Context) {
 			points += 2
 		}
 		if p.PredictedRunScorer == match.ActualRunScorer {
-			points += 2
+			points += 5
 		}
 		if p.PredictedWicketTaker == match.ActualWicketTaker {
-			points += 2
+			points += 3
 		}
 		if p.PredictedPOTM == match.ActualPOTM {
-			points += 5
+			points += 10
 		}
 
 		p.PointsEarned = points
@@ -87,6 +88,36 @@ func UpdateMatchResult(c *gin.Context) {
 		db.DB.First(&user, p.UserID)
 		user.TotalPoints += points
 		db.DB.Save(&user)
+	}
+
+	// Penalize users who did not predict
+	var allUsers []models.User
+	db.DB.Find(&allUsers)
+
+	// Build a set of user IDs who predicted
+	predictedUserIDs := make(map[uint]bool)
+	for _, p := range predictions {
+		predictedUserIDs[p.UserID] = true
+	}
+
+	for _, u := range allUsers {
+		if !predictedUserIDs[u.ID] {
+			// Create a penalty prediction record
+			penalty := models.Prediction{
+				UserID:               u.ID,
+				MatchID:              match.ID,
+				PredictedWinner:      "NO PREDICTION",
+				PredictedRunScorer:   "NO PREDICTION",
+				PredictedWicketTaker: "NO PREDICTION",
+				PredictedPOTM:        "NO PREDICTION",
+				PointsEarned:         -1,
+			}
+			db.DB.Create(&penalty)
+
+			// Deduct 1 point from user
+			u.TotalPoints -= 1
+			db.DB.Save(&u)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Match updated and points calculated successfully", "match": match})

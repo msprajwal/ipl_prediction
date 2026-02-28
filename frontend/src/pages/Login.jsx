@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 function Login({ login }) {
-    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [formData, setFormData] = useState({ login: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -13,7 +13,7 @@ function Login({ login }) {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:8080/api/login', formData);
+            const response = await axios.post('http://localhost:8081/api/login', formData);
             login(response.data.user, response.data.token);
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed. Please try again.');
@@ -32,12 +32,13 @@ function Login({ login }) {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>Email</label>
+                        <label>Username or Email</label>
                         <input
-                            type="email"
+                            type="text"
                             className="form-control"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            placeholder="Enter username or email"
+                            value={formData.login}
+                            onChange={(e) => setFormData({ ...formData, login: e.target.value })}
                             required
                         />
                     </div>

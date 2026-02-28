@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { format } from 'date-fns';
+import iplSquads from '../data/iplSquads';
 
 function MatchDetails({ user }) {
     const { id } = useParams();
@@ -33,11 +34,11 @@ function MatchDetails({ user }) {
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
             // 1. Fetch match details
-            const matchRes = await axios.get(`http://localhost:8080/api/matches/${id}`, config);
+            const matchRes = await axios.get(`http://localhost:8081/api/matches/${id}`, config);
             setMatch(matchRes.data);
 
             // 2. Fetch my prediction
-            const myPredRes = await axios.get('http://localhost:8080/api/predictions/me', config);
+            const myPredRes = await axios.get('http://localhost:8081/api/user/predictions/me', config);
             const predictionForThisMatch = myPredRes.data.find(p => p.match_id === parseInt(id));
 
             if (predictionForThisMatch) {
@@ -50,10 +51,15 @@ function MatchDetails({ user }) {
                 });
             }
 
-            // 3. Fetch public predictions if match is completed
-            if (matchRes.data.status === 'completed') {
-                const publicRes = await axios.get(`http://localhost:8080/api/matches/${id}/predictions`, config);
-                setPublicPredictions(publicRes.data || []);
+            // 3. Fetch public predictions if match is completed or match time has passed
+            const matchTimePassed = new Date() >= new Date(matchRes.data.match_date);
+            if (matchRes.data.status === 'completed' || matchTimePassed) {
+                try {
+                    const publicRes = await axios.get(`http://localhost:8081/api/user/matches/${id}/predictions`, config);
+                    setPublicPredictions(publicRes.data || []);
+                } catch (e) {
+                    // 403 = not all users predicted yet and match hasn't started, ignore
+                }
             }
 
         } catch (err) {
@@ -79,7 +85,7 @@ function MatchDetails({ user }) {
                 ...formData
             };
 
-            await axios.post('http://localhost:8080/api/predictions', payload, config);
+            await axios.post('http://localhost:8081/api/user/predictions', payload, config);
             setSuccess('Prediction saved successfully!');
             fetchData(); // Refresh to update view
         } catch (err) {
@@ -110,7 +116,7 @@ function MatchDetails({ user }) {
                 </p>
                 <div style={{ marginTop: '1rem' }}>
                     <span style={{
-                        background: match.status === 'completed' ? '#10b981' : match.status === 'active' ? '#ef4444' : '#3b82f6',
+                        background: match.status === 'completed' ? '#10b981' : (match.status === 'upcoming' && new Date() >= new Date(match.match_date)) ? '#f59e0b' : match.status === 'active' ? '#ef4444' : '#3b82f6',
                         padding: '6px 16px',
                         borderRadius: '20px',
                         fontSize: '0.9rem',
@@ -118,7 +124,7 @@ function MatchDetails({ user }) {
                         fontWeight: 'bold',
                         textTransform: 'uppercase'
                     }}>
-                        {match.status}
+                        {match.status === 'upcoming' && new Date() >= new Date(match.match_date) ? 'ongoing' : match.status}
                     </span>
                 </div>
             </div>
@@ -126,7 +132,7 @@ function MatchDetails({ user }) {
             <div className="grid grid-2">
                 {/* PREDICTION FORM OR RESULTS */}
                 <div className="glass-panel">
-                    {match.status === 'upcoming' ? (
+                    {match.status === 'upcoming' && new Date() < new Date(match.match_date) ? (
                         <>
                             <h3>Your Predictions</h3>
                             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
@@ -152,45 +158,91 @@ function MatchDetails({ user }) {
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Highest Run Scorer (2 pts)</label>
-                                    <input
-                                        type="text"
+                                    <label>Highest Runs (5 pts)</label>
+                                    <select
                                         className="form-control"
-                                        placeholder="Enter Player Name"
                                         value={formData.predicted_run_scorer}
                                         onChange={e => setFormData({ ...formData, predicted_run_scorer: e.target.value })}
                                         required
-                                    />
+                                    >
+                                        <option value="">Select Player...</option>
+                                        {match && iplSquads[match.team1] && (
+                                            <optgroup label={match.team1}>
+                                                {iplSquads[match.team1].map(p => <option key={p} value={p}>{p}</option>)}
+                                            </optgroup>
+                                        )}
+                                        {match && iplSquads[match.team2] && (
+                                            <optgroup label={match.team2}>
+                                                {iplSquads[match.team2].map(p => <option key={p} value={p}>{p}</option>)}
+                                            </optgroup>
+                                        )}
+                                    </select>
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Highest Wicket Taker (2 pts)</label>
-                                    <input
-                                        type="text"
+                                    <label>Highest Wickets (3 pts)</label>
+                                    <select
                                         className="form-control"
-                                        placeholder="Enter Player Name"
                                         value={formData.predicted_wicket_taker}
                                         onChange={e => setFormData({ ...formData, predicted_wicket_taker: e.target.value })}
                                         required
-                                    />
+                                    >
+                                        <option value="">Select Player...</option>
+                                        {match && iplSquads[match.team1] && (
+                                            <optgroup label={match.team1}>
+                                                {iplSquads[match.team1].map(p => <option key={p} value={p}>{p}</option>)}
+                                            </optgroup>
+                                        )}
+                                        {match && iplSquads[match.team2] && (
+                                            <optgroup label={match.team2}>
+                                                {iplSquads[match.team2].map(p => <option key={p} value={p}>{p}</option>)}
+                                            </optgroup>
+                                        )}
+                                    </select>
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Player of the Match (5 pts)</label>
-                                    <input
-                                        type="text"
+                                    <label>Player of the Match (10 pts)</label>
+                                    <select
                                         className="form-control"
-                                        placeholder="Enter Player Name"
                                         value={formData.predicted_potm}
                                         onChange={e => setFormData({ ...formData, predicted_potm: e.target.value })}
                                         required
-                                    />
+                                    >
+                                        <option value="">Select Player...</option>
+                                        {match && iplSquads[match.team1] && (
+                                            <optgroup label={match.team1}>
+                                                {iplSquads[match.team1].map(p => <option key={p} value={p}>{p}</option>)}
+                                            </optgroup>
+                                        )}
+                                        {match && iplSquads[match.team2] && (
+                                            <optgroup label={match.team2}>
+                                                {iplSquads[match.team2].map(p => <option key={p} value={p}>{p}</option>)}
+                                            </optgroup>
+                                        )}
+                                    </select>
                                 </div>
 
                                 <button type="submit" className="btn" style={{ width: '100%', marginTop: '1rem' }} disabled={saving}>
                                     {saving ? 'Saving...' : (myPrediction ? 'Update Prediction' : 'Submit Prediction')}
                                 </button>
                             </form>
+                        </>
+                    ) : match.status === 'upcoming' && new Date() >= new Date(match.match_date) ? (
+                        <>
+                            <h3>🔒 Predictions Locked</h3>
+                            <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>
+                                The match has started — predictions are now locked.
+                            </p>
+                            {myPrediction && (
+                                <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(59,130,246,0.1)', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Your prediction:</p>
+                                    <p><strong>Winner:</strong> {myPrediction.predicted_winner}</p>
+                                    <p><strong>Highest Runs:</strong> {myPrediction.predicted_run_scorer}</p>
+                                    <p><strong>Highest Wickets:</strong> {myPrediction.predicted_wicket_taker}</p>
+                                    <p><strong>POTM:</strong> {myPrediction.predicted_potm}</p>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <>
@@ -204,11 +256,11 @@ function MatchDetails({ user }) {
                                         <strong>{match.actual_winner}</strong>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--border-color)' }}>
-                                        <span style={{ color: 'var(--text-muted)' }}>Highest Run Scorer</span>
+                                        <span style={{ color: 'var(--text-muted)' }}>Highest Runs</span>
                                         <strong>{match.actual_run_scorer}</strong>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--border-color)' }}>
-                                        <span style={{ color: 'var(--text-muted)' }}>Highest Wicket Taker</span>
+                                        <span style={{ color: 'var(--text-muted)' }}>Highest Wickets</span>
                                         <strong>{match.actual_wicket_taker}</strong>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0' }}>
@@ -230,13 +282,13 @@ function MatchDetails({ user }) {
 
                 {/* PUBLIC PREDICTIONS / MY LOCKED PREDICTION */}
                 <div className="glass-panel">
-                    {match.status === 'upcoming' ? (
+                    {match.status === 'upcoming' && new Date() < new Date(match.match_date) && publicPredictions.length === 0 ? (
                         <div style={{ textAlign: 'center', paddingTop: '2rem' }}>
                             <h3>Other Users' Predictions</h3>
                             <div style={{ padding: '3rem 1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', marginTop: '1rem' }}>
                                 <span style={{ fontSize: '2rem' }}>🔒</span>
                                 <p style={{ color: 'var(--text-muted)', marginTop: '1rem' }}>
-                                    Hidden until the match starts to prevent cheating.
+                                    Hidden until everyone has predicted or the match starts.
                                 </p>
                             </div>
                         </div>

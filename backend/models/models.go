@@ -10,6 +10,7 @@ type User struct {
 	Username     string    `gorm:"uniqueIndex;not null" json:"username"`
 	Email        string    `gorm:"uniqueIndex;not null" json:"email"`
 	PasswordHash string    `gorm:"not null" json:"-"`
+	Role         string    `gorm:"type:varchar(20);default:'user'" json:"role"` // "user" or "admin"
 	TotalPoints  int       `gorm:"default:0" json:"total_points"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`

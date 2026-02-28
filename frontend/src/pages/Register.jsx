@@ -13,7 +13,7 @@ function Register({ login }) {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:8080/api/register', formData);
+            const response = await axios.post('http://localhost:8081/api/register', formData);
             login(response.data.user, response.data.token);
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed. Please try again.');

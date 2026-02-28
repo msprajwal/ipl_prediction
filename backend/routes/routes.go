@@ -20,17 +20,19 @@ func SetupRouter(r *gin.Engine) {
 	api.GET("/leaderboard", handlers.GetLeaderboard)
 
 	// Protected routes (User)
-	userRoutes := api.Group("/")
+	userRoutes := api.Group("/user")
 	userRoutes.Use(middleware.AuthRequired())
 	{
 		userRoutes.POST("/predictions", handlers.SubmitPrediction)
 		userRoutes.GET("/predictions/me", handlers.GetMyPredictions)
+		userRoutes.GET("/me", handlers.GetMe)
 		// Only view public predictions once match is completed
 		userRoutes.GET("/matches/:matchId/predictions", handlers.GetPublicPredictions)
 	}
 
-	// Admin routes
+	// Admin routes (requires JWT auth + admin role)
 	adminRoutes := api.Group("/admin")
+	adminRoutes.Use(middleware.AuthRequired())
 	adminRoutes.Use(handlers.AdminRequired())
 	{
 		adminRoutes.POST("/matches", handlers.CreateMatch)

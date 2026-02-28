@@ -6,6 +6,7 @@ import (
 	"ipl-prediction-backend/db"
 	"ipl-prediction-backend/models"
 	"ipl-prediction-backend/routes"
+	"ipl-prediction-backend/utils"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -28,11 +29,36 @@ func main() {
 		log.Fatal("Failed to auto-migrate database schema:", err)
 	}
 
+	// Seed admin user if not exists
+	var adminUser models.User
+	if database.Where("username = ?", "msprajwal").First(&adminUser).RowsAffected == 0 {
+		hashedPassword, err := utils.HashPassword("ipl2026")
+		if err != nil {
+			log.Fatal("Failed to hash admin password:", err)
+		}
+		adminUser = models.User{
+			Username:     "msprajwal",
+			Email:        "msprajwal@admin.com",
+			PasswordHash: hashedPassword,
+			Role:         "admin",
+		}
+		database.Create(&adminUser)
+		log.Println("Admin user 'msprajwal' created successfully.")
+	} else {
+		log.Println("Admin user 'msprajwal' already exists.")
+	}
+
 	// Setup Gin router
 	r := gin.Default()
 
-	// Configure CORS (allow all origins for local dev)
-	r.Use(cors.Default())
+	// Configure CORS
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	// Basic healthcheck route
 	r.GET("/ping", func(c *gin.Context) {
@@ -45,7 +71,7 @@ func main() {
 	routes.SetupRouter(r)
 
 	// Start the server
-	port := "8080"
+	port := "8081"
 	log.Printf("Starting server on port %s", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Server failed to start:", err)

@@ -10,7 +10,7 @@ function Dashboard() {
     useEffect(() => {
         const fetchMatches = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/matches');
+                const response = await axios.get('http://localhost:8081/api/matches');
                 setMatches(response.data || []);
             } catch (error) {
                 console.error("Error fetching matches", error);
@@ -21,9 +21,15 @@ function Dashboard() {
         fetchMatches();
     }, []);
 
+    const getDisplayStatus = (match) => {
+        if (match.status === 'upcoming' && new Date() >= new Date(match.match_date)) return 'ongoing';
+        return match.status;
+    };
+
     const getStatusBadgeColor = (status) => {
         switch (status) {
             case 'upcoming': return '#3b82f6'; // Blue
+            case 'ongoing': return '#f59e0b'; // Amber
             case 'active': return '#ef4444'; // Red
             case 'completed': return '#10b981'; // Green
             default: return '#6b7280'; // Gray
@@ -46,8 +52,11 @@ function Dashboard() {
                 </div>
             ) : (
                 <div className="grid grid-2">
-                    {matches.map((match) => (
-                        <div key={match.id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column' }}>
+                    {[...matches].sort((a, b) => {
+                        const order = { ongoing: 0, upcoming: 1, active: 2, completed: 3 };
+                        return (order[getDisplayStatus(a)] ?? 9) - (order[getDisplayStatus(b)] ?? 9);
+                    }).map((match) => (
+                        <div key={match.id} className={`glass-panel ${getDisplayStatus(match) === 'ongoing' ? 'match-ongoing' : ''}`} style={{ display: 'flex', flexDirection: 'column' }}>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                 <span style={{
@@ -55,11 +64,12 @@ function Dashboard() {
                                     padding: '4px 10px',
                                     borderRadius: '12px',
                                     fontSize: '0.8rem',
-                                    color: getStatusBadgeColor(match.status),
+                                    color: getStatusBadgeColor(getDisplayStatus(match)),
                                     fontWeight: 'bold',
                                     textTransform: 'uppercase'
                                 }}>
-                                    {match.status}
+                                    {getDisplayStatus(match) === 'ongoing' && <span className="live-dot"></span>}
+                                    {getDisplayStatus(match)}
                                 </span>
                                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                                     {format(new Date(match.match_date), 'MMM dd, yyyy - hh:mm a')}
@@ -79,7 +89,7 @@ function Dashboard() {
                                 className="btn btn-secondary"
                                 style={{ textAlign: 'center', display: 'block', marginTop: '1rem' }}
                             >
-                                {match.status === 'completed' ? 'View Results & Predictions' : 'Make Prediction'}
+                                {match.status === 'completed' ? 'View Results & Predictions' : getDisplayStatus(match) === 'ongoing' ? 'View Predictions' : 'Make Prediction'}
                             </Link>
                         </div>
                     ))}

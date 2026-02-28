@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"ipl-prediction-backend/db"
 	"ipl-prediction-backend/models"
@@ -39,6 +40,12 @@ func SubmitPrediction(c *gin.Context) {
 
 	if match.Status != "upcoming" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot submit predictions for a match that has started or is completed"})
+		return
+	}
+
+	// Time-based lock: block predictions after match start time
+	if time.Now().After(match.MatchDate) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Predictions are locked — the match has already started"})
 		return
 	}
 
@@ -86,9 +93,23 @@ func GetPublicPredictions(c *gin.Context) {
 		return
 	}
 
-	if match.Status != "completed" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Predictions are hidden until the match is completed to prevent cheating"})
-		return
+	// Allow viewing if: match completed, all users predicted, or match time has passed (locked)
+	if match.Status != "completed" && !time.Now().After(match.MatchDate) {
+		// Check if all users have predicted
+		var totalUsers int64
+		db.DB.Model(&models.User{}).Count(&totalUsers)
+
+		var totalPredictions int64
+		db.DB.Model(&models.Prediction{}).Where("match_id = ?", matchID).Count(&totalPredictions)
+
+		if totalPredictions < totalUsers {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":             "Predictions are hidden until everyone has predicted or the match starts",
+				"total_users":       totalUsers,
+				"predictions_count": totalPredictions,
+			})
+			return
+		}
 	}
 
 	var predictions []models.Prediction
