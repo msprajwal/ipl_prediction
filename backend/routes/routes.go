@@ -38,4 +38,20 @@ func SetupRouter(r *gin.Engine) {
 		adminRoutes.POST("/matches", handlers.CreateMatch)
 		adminRoutes.PUT("/matches/:id/result", handlers.UpdateMatchResult)
 	}
+
+	// Serve the frontend build
+	r.Static("/assets", "../frontend/dist/assets")
+	r.StaticFile("/vite.svg", "../frontend/dist/vite.svg")
+	// If favicon exists, serve it, otherwise ignore
+	r.StaticFile("/favicon.ico", "../frontend/dist/favicon.ico")
+
+	// Catch-all route to serve React's index.html for all non-API paths
+	r.NoRoute(func(c *gin.Context) {
+		// Only serve index.html for non-API routes
+		if len(c.Request.URL.Path) >= 4 && c.Request.URL.Path[:4] == "/api" {
+			c.JSON(404, gin.H{"error": "API route not found"})
+			return
+		}
+		c.File("../frontend/dist/index.html")
+	})
 }
