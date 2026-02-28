@@ -48,10 +48,17 @@ func main() {
 		log.Println("Admin user 'msprajwal' already exists.")
 	}
 
+	// Setup logging to file and console
+	f, err := os.OpenFile("server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println("Failed to open server.log file, writing logs to console only")
+	} else {
+		gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+		log.SetOutput(io.MultiWriter(f, os.Stdout))
+	}
+
 	// Setup Gin router
 	r := gin.Default()
-
-	// Configure CORS
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
