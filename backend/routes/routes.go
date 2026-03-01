@@ -39,6 +39,7 @@ func SetupRouter(r *gin.Engine) {
 		adminRoutes.POST("/matches", handlers.CreateMatch)
 		adminRoutes.PUT("/matches/:id/result", handlers.UpdateMatchResult)
 		adminRoutes.POST("/reset-db", handlers.ResetDatabase)
+		adminRoutes.PATCH("/matches/:id/time", handlers.UpdateMatchTime)
 	}
 
 	// Serve the frontend build

@@ -104,7 +104,7 @@ function MatchDetails({ user }) {
 
             {/* MATCH HEADER */}
             <div className="glass-panel" style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                <h2 style={{ fontSize: '2.5rem', margin: '1rem 0' }}>{match.team1} vs {match.team2}</h2>
+                <h2 style={{ fontSize: 'clamp(1.4rem, 5vw, 2.5rem)', margin: '1rem 0' }}>{match.team1} vs {match.team2}</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>
                     {format(new Date(match.match_date), 'MMMM do, yyyy - hh:mm a')}
                 </p>

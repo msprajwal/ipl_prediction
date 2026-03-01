@@ -313,3 +313,107 @@ h1 {
   animation: livePulse 1.5s ease-in-out infinite;
   vertical-align: middle;
 }
+
+/* ═══════════════════════════════════════
+   MOBILE RESPONSIVE  (≤768px)
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* --- Layout --- */
+  .content {
+    padding: 1rem;
+  }
+
+  .glass-panel {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+
+  /* --- Typography --- */
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  /* --- Navbar --- */
+  .navbar {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .nav-links {
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+  }
+
+  .nav-links .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  /* --- Grids --- */
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- Buttons --- */
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.7rem 1.2rem;
+  }
+
+  /* --- Auth pages --- */
+  .auth-container {
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+
+  /* --- Form controls --- */
+  .form-control {
+    font-size: 16px;
+    /* Prevents iOS auto-zoom on focus */
+  }
+
+  select.form-control {
+    font-size: 16px;
+  }
+}
+
+/* ═══════════════════════════════════════
+   VERY SMALL SCREENS  (≤400px)
+═══════════════════════════════════════ */
+@media (max-width: 400px) {
+  .navbar {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .content {
+    padding: 0.75rem;
+  }
+
+  .glass-panel {
+    padding: 1rem;
+  }
+}

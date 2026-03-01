@@ -102,6 +102,18 @@ const iplSquads = {
         "Mohammad Salman Mirza", "Naseem Shah", "Sahibzada Farhan",
         "Saim Ayub", "Shaheen Shah Afridi", "Shadab Khan", "Usman Khan",
         "Usman Tariq"
+    ],
+    IND: [
+        "Suryakumar Yadav", "Abhishek Sharma", "Tilak Varma", "Sanju Samson",
+        "Shivam Dube", "Ishan Kishan", "Hardik Pandya", "Arshdeep Singh",
+        "Jasprit Bumrah", "Mohammed Siraj", "Varun Chakaravarthy", "Kuldeep Yadav",
+        "Axar Patel", "Washington Sundar", "Rinku Singh"
+    ],
+    WI: [
+        "Shai Hope", "Shimron Hetmyer", "Johnson Charles", "Roston Chase",
+        "Matthew Forde", "Jason Holder", "Akeal Hosein", "Shamar Joseph",
+        "Brandon King", "Gudakesh Motie", "Rovman Powell", "Sherfane Rutherford",
+        "Quentin Sampson", "Jayden Seales", "Romario Shepherd"
     ]
 };
 

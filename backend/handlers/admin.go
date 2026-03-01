@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"ipl-prediction-backend/db"
 	"ipl-prediction-backend/models"
@@ -10,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ResetDatabase clears all data except the admin user
+// ResetDatabase clears matches and predictions, and resets all user points to 0
 func ResetDatabase(c *gin.Context) {
 	// Delete all predictions
 	if err := db.DB.Exec("DELETE FROM predictions").Error; err != nil {
@@ -24,20 +25,14 @@ func ResetDatabase(c *gin.Context) {
 		return
 	}
 
-	// Delete all users except admin
-	if err := db.DB.Exec("DELETE FROM users WHERE username != 'msprajwal'").Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete users"})
-		return
-	}
-
-	// Reset admin points to 0
+	// Reset all user points to 0 (keep all accounts)
 	db.DB.Exec("UPDATE users SET total_points = 0")
 
 	// Reset auto-increment sequences
 	db.DB.Exec("DELETE FROM sqlite_sequence WHERE name IN ('matches', 'predictions')")
 
 	log.Println("[ADMIN] Database has been reset by admin.")
-	c.JSON(http.StatusOK, gin.H{"message": "Database reset successfully. All users (except admin), matches, and predictions have been removed."})
+	c.JSON(http.StatusOK, gin.H{"message": "Database reset successfully. All matches and predictions cleared, points reset to 0. User accounts kept."})
 }
 
 // Admin-only struct to update match results
@@ -170,4 +165,42 @@ func CreateMatch(c *gin.Context) {
 
 	db.DB.Create(&input)
 	c.JSON(http.StatusCreated, gin.H{"message": "Match created", "match": input})
+}
+
+// UpdateMatchTime allows admin to change only the match start time
+type UpdateMatchTimeInput struct {
+	MatchDate string `json:"match_date" binding:"required"`
+}
+
+func UpdateMatchTime(c *gin.Context) {
+	matchID := c.Param("id")
+
+	var input UpdateMatchTimeInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var match models.Match
+	if err := db.DB.First(&match, matchID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Match not found"})
+		return
+	}
+
+	if match.Status == "completed" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot change time of a completed match"})
+		return
+	}
+
+	newTime, err := time.Parse(time.RFC3339, input.MatchDate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format, use ISO 8601 (e.g. 2026-03-01T13:30:00Z)"})
+		return
+	}
+
+	match.MatchDate = newTime
+	db.DB.Save(&match)
+
+	log.Printf("[ADMIN] Match #%s (%s vs %s) time updated to %s", matchID, match.Team1, match.Team2, newTime.String())
+	c.JSON(http.StatusOK, gin.H{"message": "Match time updated successfully", "match": match})
 }

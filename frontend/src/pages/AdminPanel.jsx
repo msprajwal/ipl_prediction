@@ -13,6 +13,25 @@ function AdminPanel({ user }) {
     // New match form
     const [newMatch, setNewMatch] = useState({ team1: '', team2: '', match_date: '', match_time: '19:30' });
 
+    const [editTimeId, setEditTimeId] = useState(null);
+    const [editTimeValue, setEditTimeValue] = useState('');
+
+    const handleUpdateMatchTime = async (matchId) => {
+        if (!editTimeValue) return;
+        try {
+            // Convert local datetime-local value to UTC ISO string
+            const localDate = new Date(editTimeValue);
+            await api.patch(`/api/admin/matches/${matchId}/time`, {
+                match_date: localDate.toISOString()
+            });
+            setSuccess('Match time updated successfully!');
+            setEditTimeId(null);
+            fetchMatches();
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to update match time');
+        }
+    };
+
     // Result form
     const [resultForm, setResultForm] = useState({});
     const [activeResultId, setActiveResultId] = useState(null);
@@ -175,8 +194,44 @@ function AdminPanel({ user }) {
                                     </div>
                                     <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                                         {format(new Date(match.match_date), 'MMM dd, yyyy - hh:mm a')}
+                                        {match.status !== 'completed' && (
+                                            <button
+                                                onClick={() => {
+                                                    setEditTimeId(editTimeId === match.id ? null : match.id);
+                                                    // Pre-fill with current match time in local format
+                                                    const d = new Date(match.match_date);
+                                                    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+                                                        .toISOString().slice(0, 16);
+                                                    setEditTimeValue(local);
+                                                }}
+                                                style={{ marginLeft: '0.5rem', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.8rem' }}
+                                            >
+                                                ✏️ Edit
+                                            </button>
+                                        )}
                                     </span>
                                 </div>
+
+                                {/* EDIT MATCH TIME */}
+                                {editTimeId === match.id && (
+                                    <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                        <input
+                                            type="datetime-local"
+                                            className="form-control"
+                                            style={{ flex: 1, minWidth: '200px' }}
+                                            value={editTimeValue}
+                                            onChange={e => setEditTimeValue(e.target.value)}
+                                        />
+                                        <button className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                                            onClick={() => handleUpdateMatchTime(match.id)}>
+                                            Save
+                                        </button>
+                                        <button className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                                            onClick={() => setEditTimeId(null)}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                )}
 
                                 {match.status === 'completed' && (
                                     <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>

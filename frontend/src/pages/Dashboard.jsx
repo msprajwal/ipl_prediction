@@ -82,6 +82,11 @@ function Dashboard() {
                                     <div style={{ color: 'var(--text-muted)' }}>vs</div>
                                     <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{match.team2}</div>
                                 </div>
+                                {getDisplayStatus(match) === 'upcoming' && (
+                                    <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: '#f59e0b' }}>
+                                        ⏰ Predict by {format(new Date(match.match_date), 'hh:mm a, MMM dd')}
+                                    </div>
+                                )}
                             </div>
 
                             <Link
