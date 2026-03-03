@@ -31,23 +31,27 @@ func main() {
 		log.Fatal("Failed to auto-migrate database schema:", err)
 	}
 
-	// Seed admin user if not exists
-	var adminUser models.User
-	if database.Where("username = ?", "msprajwal").First(&adminUser).RowsAffected == 0 {
-		hashedPassword, err := utils.HashPassword("ipl2026")
-		if err != nil {
-			log.Fatal("Failed to hash admin password:", err)
+	// Seed admin user if not exists (credentials from env vars)
+	adminUsername := os.Getenv("ADMIN_USERNAME")
+	adminPassword := os.Getenv("ADMIN_PASSWORD")
+	if adminUsername != "" && adminPassword != "" {
+		var adminUser models.User
+		if database.Where("username = ?", adminUsername).First(&adminUser).RowsAffected == 0 {
+			hashedPassword, err := utils.HashPassword(adminPassword)
+			if err != nil {
+				log.Fatal("Failed to hash admin password:", err)
+			}
+			adminUser = models.User{
+				Username:     adminUsername,
+				Email:        adminUsername + "@admin.com",
+				PasswordHash: hashedPassword,
+				Role:         "admin",
+			}
+			database.Create(&adminUser)
+			log.Printf("Admin user '%s' created successfully.", adminUsername)
+		} else {
+			log.Printf("Admin user '%s' already exists.", adminUsername)
 		}
-		adminUser = models.User{
-			Username:     "msprajwal",
-			Email:        "msprajwal@admin.com",
-			PasswordHash: hashedPassword,
-			Role:         "admin",
-		}
-		database.Create(&adminUser)
-		log.Println("Admin user 'msprajwal' created successfully.")
-	} else {
-		log.Println("Admin user 'msprajwal' already exists.")
 	}
 
 	// Setup logging to file and console
