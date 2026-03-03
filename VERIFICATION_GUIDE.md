@@ -87,9 +87,3 @@ npm run dev
 
 ---
 
-## Accounts
-
-| User      | Email                | Password   | Role  |
-|-----------|----------------------|------------|-------|
-| Admin     | msprajwal@admin.com  | ipl2026    | admin |
-| Others    | (self-registered)    | (chosen)   | user  |
