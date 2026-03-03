@@ -4,6 +4,7 @@ import api from '../api';
 import Cookies from 'js-cookie';
 import { format } from 'date-fns';
 import iplSquads from '../data/iplSquads';
+import LiveScore from '../components/LiveScore';
 
 function MatchDetails({ user }) {
     const { id } = useParams();
@@ -122,6 +123,16 @@ function MatchDetails({ user }) {
                     </span>
                 </div>
             </div>
+
+            {/* LIVE SCORE SECTION — shown for ongoing or completed matches */}
+            {(match.status !== 'upcoming' || new Date() >= new Date(match.match_date)) && (
+                <div className="glass-panel" style={{ marginBottom: '2rem' }}>
+                    <h3 style={{ marginBottom: '1rem' }}>
+                        {match.status === 'completed' ? '📋 Match Summary' : '🔴 Live Score'}
+                    </h3>
+                    <LiveScore team1={match.team1} team2={match.team2} matchStatus={match.status} />
+                </div>
+            )}
 
             <div className="grid grid-2">
                 {/* PREDICTION FORM OR RESULTS */}

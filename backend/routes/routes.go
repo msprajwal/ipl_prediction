@@ -20,6 +20,9 @@ func SetupRouter(r *gin.Engine) {
 	api.GET("/matches/:id", handlers.GetMatchByID)
 	api.GET("/leaderboard", handlers.GetLeaderboard)
 
+	// Live score proxy (public, cached)
+	api.GET("/live-scores", handlers.GetLiveScores)
+
 	// Protected routes (User)
 	userRoutes := api.Group("/user")
 	userRoutes.Use(middleware.AuthRequired())
@@ -41,20 +44,8 @@ func SetupRouter(r *gin.Engine) {
 		adminRoutes.POST("/reset-db", handlers.ResetDatabase)
 		adminRoutes.PATCH("/matches/:id/time", handlers.UpdateMatchTime)
 	}
-
-	// Serve the frontend build
-	r.Static("/assets", "../frontend/dist/assets")
-	r.StaticFile("/vite.svg", "../frontend/dist/vite.svg")
-	// If favicon exists, serve it, otherwise ignore
-	r.StaticFile("/favicon.ico", "../frontend/dist/favicon.ico")
-
-	// Catch-all route to serve React's index.html for all non-API paths
+	// Catch-all: return 404 for non-API paths (frontend is served by Vercel)
 	r.NoRoute(func(c *gin.Context) {
-		// Only serve index.html for non-API routes
-		if len(c.Request.URL.Path) >= 4 && c.Request.URL.Path[:4] == "/api" {
-			c.JSON(404, gin.H{"error": "API route not found"})
-			return
-		}
-		c.File("../frontend/dist/index.html")
+		c.JSON(404, gin.H{"error": "Route not found"})
 	})
 }

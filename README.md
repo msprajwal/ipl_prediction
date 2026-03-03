@@ -62,7 +62,7 @@ The application will now be running on **http://localhost:8081**.
 
 ## 🌍 How to Share Online (Using Ngrok)
 
-If you want to host this temporarily to play with friends, you can use [ngrok](https://ngrok.com/) to securely expose your local port `8081` to the internet.
+If you want to host this temporarily to play with friends, you can use [ngrok](https://ngrok.com/) to expose your app. **Expose only the backend port (8081)**—the Go server serves both the API and the frontend, so one tunnel is simpler and safer (same-origin, no extra CORS or ports).
 
 1. Download and install ngrok.
 2. Authenticate ngrok with your free account token.

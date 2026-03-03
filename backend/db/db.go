@@ -5,23 +5,25 @@ import (
 	"log"
 	"os"
 
-	"github.com/glebarez/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
 func InitDB() *gorm.DB {
-	// Use SQLite for local development
-	dbName := "ipl_prediction.db"
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		log.Fatal("DATABASE_URL environment variable is required")
+	}
 
-	db, err := gorm.Open(sqlite.Open(dbName), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to SQLite database. \n", err)
+		log.Fatal("Failed to connect to Postgres database.\n", err)
 		os.Exit(2)
 	}
 
-	fmt.Println("SQLite database connection successfully opened")
+	fmt.Println("PostgreSQL database connection successfully opened")
 	DB = db
 	return DB
 }

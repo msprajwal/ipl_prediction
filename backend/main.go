@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	"io"
+	"log"
 	"os"
 
 	"ipl-prediction-backend/db"
@@ -66,7 +66,7 @@ func main() {
 			return true // Allow all origins dynamically (required when credentials are enabled)
 		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
@@ -82,7 +82,10 @@ func main() {
 	routes.SetupRouter(r)
 
 	// Start the server
-	port := "8081"
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081"
+	}
 	log.Printf("Starting server on port %s", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Server failed to start:", err)
