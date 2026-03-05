@@ -5,15 +5,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
-
-// CricAPI key — free tier (100 calls/day)
-const cricAPIKey = "cf964548-f582-4952-b835-f45ce6583730"
-const cricAPIURL = "https://api.cricapi.com/v1/currentMatches?apikey=" + cricAPIKey + "&offset=0"
 
 // Simple cache to avoid burning API calls — cache for 30 seconds
 var (
@@ -25,6 +22,14 @@ var (
 
 // GetLiveScores proxies and caches CricAPI currentMatches
 func GetLiveScores(c *gin.Context) {
+	cricAPIKey := os.Getenv("CRIC_API_KEY")
+	if cricAPIKey == "" {
+		log.Println("[LIVE SCORE] CRIC_API_KEY is not configured")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Live score API key missing"})
+		return
+	}
+	cricAPIURL := "https://api.cricapi.com/v1/currentMatches?apikey=" + cricAPIKey + "&offset=0"
+
 	cacheMu.Lock()
 	defer cacheMu.Unlock()
 

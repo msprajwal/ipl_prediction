@@ -114,6 +114,12 @@ const iplSquads = {
         "Matthew Forde", "Jason Holder", "Akeal Hosein", "Shamar Joseph",
         "Brandon King", "Gudakesh Motie", "Rovman Powell", "Sherfane Rutherford",
         "Quentin Sampson", "Jayden Seales", "Romario Shepherd"
+    ],
+    ENG: [
+        "Harry Brook", "Ben Duckett", "Jacob Bethell", "Tom Banton",
+        "Jos Buttler", "Phil Salt", "Sam Curran", "Will Jacks",
+        "Liam Dawson", "Jamie Overton", "Rehan Ahmed", "Jofra Archer",
+        "Adil Rashid", "Josh Tongue", "Luke Wood"
     ]
 };
 
