@@ -14,7 +14,15 @@ func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := c.Cookie("token")
 		if err != nil || tokenString == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authentication cookie is missing or invalid"})
+			// Fallback to Authorization header
+			authHeader := c.GetHeader("Authorization")
+			if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+				tokenString = authHeader[7:]
+			}
+		}
+
+		if tokenString == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authentication token is missing or invalid"})
 			return
 		}
 

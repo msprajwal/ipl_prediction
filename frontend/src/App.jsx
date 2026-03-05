@@ -48,6 +48,7 @@ function App() {
       await api.post('/api/logout');
     } catch (e) { }
     Cookies.remove('user');
+    localStorage.removeItem('token');
     setIsAuthenticated(false);
     setUser(null);
   };

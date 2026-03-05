@@ -79,6 +79,7 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User registered successfully",
+		"token":   token,
 		"user": gin.H{
 			"id":       user.ID,
 			"username": user.Username,
@@ -129,6 +130,7 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logged in successfully",
+		"token":   token,
 		"user": gin.H{
 			"id":       user.ID,
 			"username": user.Username,
