@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"ipl-prediction-backend/db"
 	"ipl-prediction-backend/models"
@@ -65,8 +66,16 @@ func Register(c *gin.Context) {
 
 	log.Printf("[ACTIVITY] User '%s' registered successfully.", user.Username)
 
-	// Set HttpOnly cookie (name, value, maxAge, path, domain, secure, httpOnly)
-	c.SetCookie("token", token, 7200, "/", "", false, true)
+	// Set HttpOnly cookie with SameSite=None for cross-domain (Vercel → Render)
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   7200,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	})
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User registered successfully",
@@ -107,8 +116,16 @@ func Login(c *gin.Context) {
 
 	log.Printf("[ACTIVITY] User '%s' logged in successfully.", user.Username)
 
-	// Set HttpOnly cookie
-	c.SetCookie("token", token, 7200, "/", "", false, true)
+	// Set HttpOnly cookie with SameSite=None for cross-domain
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   7200,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	})
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logged in successfully",
@@ -127,8 +144,17 @@ func Logout(c *gin.Context) {
 		log.Printf("[ACTIVITY] User '%s' logged out.", username)
 	}
 
-	// Clear the cookie by setting maxAge to -1
-	c.SetCookie("token", "", -1, "/", "", false, true)
+	// Clear the cookie
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	})
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 

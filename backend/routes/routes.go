@@ -20,9 +20,6 @@ func SetupRouter(r *gin.Engine) {
 	api.GET("/matches/:id", handlers.GetMatchByID)
 	api.GET("/leaderboard", handlers.GetLeaderboard)
 
-	// Live score proxy (public, cached)
-	api.GET("/live-scores", handlers.GetLiveScores)
-
 	// Protected routes (User)
 	userRoutes := api.Group("/user")
 	userRoutes.Use(middleware.AuthRequired())
