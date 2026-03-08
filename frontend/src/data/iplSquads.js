@@ -120,6 +120,12 @@ const iplSquads = {
         "Jos Buttler", "Phil Salt", "Sam Curran", "Will Jacks",
         "Liam Dawson", "Jamie Overton", "Rehan Ahmed", "Jofra Archer",
         "Adil Rashid", "Josh Tongue", "Luke Wood"
+    ],
+    NZ: [
+        "Mitchell Santner", "Finn Allen", "Michael Bracewell", "Mark Chapman",
+        "Devon Conway", "Jacob Duffy", "Lockie Ferguson", "Matt Henry",
+        "Kyle Jamieson", "Daryl Mitchell", "James Neesham", "Glenn Phillips",
+        "Rachin Ravindra", "Tim Seifert", "Ish Sodhi"
     ]
 };
 

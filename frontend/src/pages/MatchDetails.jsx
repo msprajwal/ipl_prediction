@@ -103,25 +103,90 @@ function MatchDetails({ user }) {
             </button>
 
             {/* MATCH HEADER */}
-            <div className="glass-panel" style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                <h2 style={{ fontSize: 'clamp(1.4rem, 5vw, 2.5rem)', margin: '1rem 0' }}>{match.team1} vs {match.team2}</h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>
-                    {format(new Date(match.match_date), 'MMMM do, yyyy - hh:mm a')}
-                </p>
-                <div style={{ marginTop: '1rem' }}>
-                    <span style={{
-                        background: match.status === 'completed' ? '#10b981' : (match.status === 'upcoming' && new Date() >= new Date(match.match_date)) ? '#f59e0b' : match.status === 'active' ? '#ef4444' : '#3b82f6',
-                        padding: '6px 16px',
-                        borderRadius: '20px',
-                        fontSize: '0.9rem',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        textTransform: 'uppercase'
+            {(() => {
+                const isFinal = (
+                    (match.team1 === 'IND' && match.team2 === 'NZ') ||
+                    (match.team1 === 'NZ' && match.team2 === 'IND')
+                ) && new Date(match.match_date).toDateString() === new Date('2026-03-08').toDateString();
+
+                return (
+                    <div className="glass-panel" style={{
+                        marginBottom: '2rem',
+                        textAlign: 'center',
+                        ...(isFinal ? {
+                            border: '2px solid #fbbf24',
+                            background: 'linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(217,119,6,0.1) 50%, rgba(251,191,36,0.15) 100%)',
+                            boxShadow: '0 0 30px rgba(251,191,36,0.2), inset 0 0 30px rgba(251,191,36,0.05)',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        } : {})
                     }}>
-                        {match.status === 'upcoming' && new Date() >= new Date(match.match_date) ? 'ongoing' : match.status}
-                    </span>
-                </div>
-            </div>
+                        {isFinal && (
+                            <>
+                                <div style={{
+                                    position: 'absolute',
+                                    top: 0, left: '-100%',
+                                    width: '200%', height: '100%',
+                                    background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.1), transparent)',
+                                    animation: 'shimmer 3s infinite',
+                                    pointerEvents: 'none'
+                                }} />
+                                <style>{`@keyframes shimmer { 0% { transform: translateX(-50%); } 100% { transform: translateX(50%); } }`}</style>
+                                <div style={{
+                                    background: 'linear-gradient(90deg, #fbbf24, #f59e0b, #d97706)',
+                                    color: '#000',
+                                    padding: '8px 24px',
+                                    borderRadius: '0 0 12px 12px',
+                                    display: 'inline-block',
+                                    fontWeight: '900',
+                                    fontSize: '0.85rem',
+                                    letterSpacing: '3px',
+                                    textTransform: 'uppercase',
+                                    marginBottom: '1rem'
+                                }}>
+                                    🏆 ICC T20 WORLD CUP 2026 — FINAL 🏆
+                                </div>
+                            </>
+                        )}
+                        <h2 style={{
+                            fontSize: 'clamp(1.4rem, 5vw, 2.5rem)',
+                            margin: '1rem 0',
+                            ...(isFinal ? {
+                                fontSize: 'clamp(1.8rem, 6vw, 3rem)',
+                                background: 'linear-gradient(90deg, #fbbf24, #fff, #fbbf24)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                fontWeight: '900'
+                            } : {})
+                        }}>
+                            {isFinal ? `🇮🇳 ${match.team1} vs ${match.team2} 🇳🇿` : `${match.team1} vs ${match.team2}`}
+                        </h2>
+                        {isFinal && (
+                            <p style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: '1rem', margin: '0.5rem 0' }}>
+                                ✨ The Grand Finale — Who lifts the trophy? ✨
+                            </p>
+                        )}
+                        <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>
+                            {format(new Date(match.match_date), 'MMMM do, yyyy - hh:mm a')}
+                        </p>
+                        <div style={{ marginTop: '1rem' }}>
+                            <span style={{
+                                background: isFinal
+                                    ? 'linear-gradient(90deg, #fbbf24, #d97706)'
+                                    : match.status === 'completed' ? '#10b981' : (match.status === 'upcoming' && new Date() >= new Date(match.match_date)) ? '#f59e0b' : match.status === 'active' ? '#ef4444' : '#3b82f6',
+                                padding: isFinal ? '8px 24px' : '6px 16px',
+                                borderRadius: '20px',
+                                fontSize: isFinal ? '1rem' : '0.9rem',
+                                color: isFinal ? '#000' : 'white',
+                                fontWeight: 'bold',
+                                textTransform: 'uppercase'
+                            }}>
+                                {isFinal ? '🏆 FINAL' : (match.status === 'upcoming' && new Date() >= new Date(match.match_date) ? 'ongoing' : match.status)}
+                            </span>
+                        </div>
+                    </div>
+                );
+            })()}
 
             <div className="grid grid-2">
                 {/* PREDICTION FORM OR RESULTS */}
