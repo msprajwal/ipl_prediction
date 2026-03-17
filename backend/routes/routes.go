@@ -19,6 +19,7 @@ func SetupRouter(r *gin.Engine) {
 	api.GET("/matches", handlers.GetMatches)
 	api.GET("/matches/:id", handlers.GetMatchByID)
 	api.GET("/leaderboard", handlers.GetLeaderboard)
+	api.GET("/points-history", handlers.GetPointsHistory)
 
 	// Protected routes (User)
 	userRoutes := api.Group("/user")

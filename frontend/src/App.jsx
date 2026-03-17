@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import MatchDetails from './pages/MatchDetails';
 import Leaderboard from './pages/Leaderboard';
 import AdminPanel from './pages/AdminPanel';
+import Stats from './pages/Stats';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -66,6 +67,7 @@ function App() {
             <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
             <Route path="/match/:id" element={isAuthenticated ? <MatchDetails user={user} /> : <Navigate to="/login" />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/stats" element={isAuthenticated ? <Stats /> : <Navigate to="/login" />} />
             <Route path="/admin" element={isAuthenticated ? <AdminPanel user={user} /> : <Navigate to="/login" />} />
           </Routes>
         </main>
