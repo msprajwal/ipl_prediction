@@ -52,7 +52,7 @@ function Dashboard() {
                 </div>
             ) : (
                 <div className="grid grid-2">
-                    {[...matches].sort((a, b) => {
+                    {[...matches].filter(m => m.status !== 'completed').sort((a, b) => {
                         const order = { ongoing: 0, upcoming: 1, active: 2, completed: 3 };
                         return (order[getDisplayStatus(a)] ?? 9) - (order[getDisplayStatus(b)] ?? 9);
                     }).map((match) => (

@@ -17,6 +17,7 @@ func SetupRouter(r *gin.Engine) {
 
 	// Match routes (Public)
 	api.GET("/matches", handlers.GetMatches)
+	api.GET("/matches/completed", handlers.GetCompletedMatches)
 	api.GET("/matches/:id", handlers.GetMatchByID)
 	api.GET("/leaderboard", handlers.GetLeaderboard)
 	api.GET("/points-history", handlers.GetPointsHistory)

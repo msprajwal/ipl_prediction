@@ -1702,3 +1702,98 @@ Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust
 Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8081
 2026/03/03 09:56:29 Server failed to start:listen tcp :8081: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> main.main.func2 (4 handlers)
+[GIN-debug] POST   /api/register             --> ipl-prediction-backend/handlers.Register (4 handlers)
+[GIN-debug] POST   /api/login                --> ipl-prediction-backend/handlers.Login (4 handlers)
+[GIN-debug] POST   /api/logout               --> ipl-prediction-backend/handlers.Logout (4 handlers)
+[GIN-debug] GET    /api/matches              --> ipl-prediction-backend/handlers.GetMatches (4 handlers)
+[GIN-debug] GET    /api/matches/:id          --> ipl-prediction-backend/handlers.GetMatchByID (4 handlers)
+[GIN-debug] GET    /api/leaderboard          --> ipl-prediction-backend/handlers.GetLeaderboard (4 handlers)
+[GIN-debug] GET    /api/points-history       --> ipl-prediction-backend/handlers.GetPointsHistory (4 handlers)
+[GIN-debug] POST   /api/user/predictions     --> ipl-prediction-backend/handlers.SubmitPrediction (5 handlers)
+[GIN-debug] GET    /api/user/predictions/me  --> ipl-prediction-backend/handlers.GetMyPredictions (5 handlers)
+[GIN-debug] GET    /api/user/me              --> ipl-prediction-backend/handlers.GetMe (5 handlers)
+[GIN-debug] GET    /api/user/matches/:matchId/predictions --> ipl-prediction-backend/handlers.GetPublicPredictions (5 handlers)
+[GIN-debug] POST   /api/admin/matches        --> ipl-prediction-backend/handlers.CreateMatch (6 handlers)
+[GIN-debug] PUT    /api/admin/matches/:id/result --> ipl-prediction-backend/handlers.UpdateMatchResult (6 handlers)
+[GIN-debug] POST   /api/admin/reset-db       --> ipl-prediction-backend/handlers.ResetDatabase (6 handlers)
+[GIN-debug] PATCH  /api/admin/matches/:id/time --> ipl-prediction-backend/handlers.UpdateMatchTime (6 handlers)
+2026/03/17 19:25:34 Starting server on port 8081
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8081
+[GIN] 2026/03/17 - 19:25:51 | 204 |       594.9µs |             ::1 | OPTIONS  "/api/login"
+[GIN] 2026/03/17 - 19:25:52 | 401 |      992.38ms |             ::1 | POST     "/api/login"
+[GIN] 2026/03/17 - 19:27:52 | 204 |            0s |             ::1 | OPTIONS  "/api/login"
+2026/03/17 19:27:53 [ACTIVITY] User 'msprajwal' logged in successfully.
+[GIN] 2026/03/17 - 19:27:53 | 200 |    939.6666ms |             ::1 | POST     "/api/login"
+[GIN] 2026/03/17 - 19:27:53 | 204 |            0s |             ::1 | OPTIONS  "/api/matches"
+[GIN] 2026/03/17 - 19:27:54 | 200 |     94.0473ms |             ::1 | GET      "/api/matches"
+[GIN] 2026/03/17 - 19:27:54 | 200 |      46.646ms |             ::1 | GET      "/api/matches"
+[GIN] 2026/03/17 - 19:27:57 | 204 |            0s |             ::1 | OPTIONS  "/api/points-history"
+[GIN] 2026/03/17 - 19:27:57 | 204 |            0s |             ::1 | OPTIONS  "/api/points-history"
+[GIN] 2026/03/17 - 19:27:58 | 200 |    401.4506ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:27:58 | 200 |    147.2537ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:28:41 | 200 |    267.3606ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:28:41 | 200 |    142.2427ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:29:40 | 204 |            0s |             ::1 | OPTIONS  "/api/user/me"
+2026/03/17 19:29:42 [ACTIVITY] User 'msprajwal' accessed GET /api/user/me
+[GIN] 2026/03/17 - 19:29:42 | 200 |     2.080921s |             ::1 | GET      "/api/user/me"
+[GIN] 2026/03/17 - 19:30:22 | 204 |       505.4µs |             ::1 | OPTIONS  "/api/login"
+2026/03/17 19:30:23 [ACTIVITY] User 'msprajwal' logged in successfully.
+[GIN] 2026/03/17 - 19:30:23 | 200 |    953.5897ms |             ::1 | POST     "/api/login"
+[GIN] 2026/03/17 - 19:30:23 | 204 |            0s |             ::1 | OPTIONS  "/api/matches"
+[GIN] 2026/03/17 - 19:30:23 | 204 |     55.4273ms |             ::1 | OPTIONS  "/api/matches"
+[GIN] 2026/03/17 - 19:30:23 | 200 |     98.8735ms |             ::1 | GET      "/api/matches"
+[GIN] 2026/03/17 - 19:30:23 | 200 |     48.2354ms |             ::1 | GET      "/api/matches"
+[GIN] 2026/03/17 - 19:30:34 | 204 |            0s |             ::1 | OPTIONS  "/api/points-history"
+[GIN] 2026/03/17 - 19:30:34 | 204 |            0s |             ::1 | OPTIONS  "/api/points-history"
+[GIN] 2026/03/17 - 19:30:34 | 200 |    197.4969ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:30:34 | 200 |    148.2803ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:34:29 | 204 |            0s |             ::1 | OPTIONS  "/api/leaderboard"
+[GIN] 2026/03/17 - 19:34:29 | 204 |            0s |             ::1 | OPTIONS  "/api/leaderboard"
+[GIN] 2026/03/17 - 19:34:30 | 200 |    147.8348ms |             ::1 | GET      "/api/leaderboard"
+[GIN] 2026/03/17 - 19:34:30 | 200 |     47.7838ms |             ::1 | GET      "/api/leaderboard"
+[GIN] 2026/03/17 - 19:35:28 | 204 |       508.5µs |             ::1 | OPTIONS  "/api/leaderboard"
+[GIN] 2026/03/17 - 19:35:28 | 204 |            0s |             ::1 | OPTIONS  "/api/user/me"
+[GIN] 2026/03/17 - 19:35:28 | 204 |            0s |             ::1 | OPTIONS  "/api/leaderboard"
+[GIN] 2026/03/17 - 19:35:28 | 204 |            0s |             ::1 | OPTIONS  "/api/user/me"
+[GIN] 2026/03/17 - 19:35:28 | 200 |    145.7405ms |             ::1 | GET      "/api/leaderboard"
+[GIN] 2026/03/17 - 19:35:28 | 200 |     50.6003ms |             ::1 | GET      "/api/leaderboard"
+2026/03/17 19:35:32 [ACTIVITY] User 'msprajwal' accessed GET /api/user/me
+[GIN] 2026/03/17 - 19:35:32 | 200 |    4.3640224s |             ::1 | GET      "/api/user/me"
+2026/03/17 19:35:32 [ACTIVITY] User 'msprajwal' accessed GET /api/user/me
+[GIN] 2026/03/17 - 19:35:32 | 200 |     98.1429ms |             ::1 | GET      "/api/user/me"
+[GIN] 2026/03/17 - 19:37:51 | 204 |            0s |             ::1 | OPTIONS  "/api/leaderboard"
+[GIN] 2026/03/17 - 19:37:51 | 204 |            0s |             ::1 | OPTIONS  "/api/user/me"
+[GIN] 2026/03/17 - 19:37:51 | 204 |            0s |             ::1 | OPTIONS  "/api/leaderboard"
+[GIN] 2026/03/17 - 19:37:51 | 204 |            0s |             ::1 | OPTIONS  "/api/user/me"
+2026/03/17 19:37:51 [ACTIVITY] User 'msprajwal' accessed GET /api/user/me
+[GIN] 2026/03/17 - 19:37:51 | 200 |    101.5519ms |             ::1 | GET      "/api/user/me"
+[GIN] 2026/03/17 - 19:37:51 | 200 |    148.5295ms |             ::1 | GET      "/api/leaderboard"
+2026/03/17 19:37:51 [ACTIVITY] User 'msprajwal' accessed GET /api/user/me
+[GIN] 2026/03/17 - 19:37:51 | 200 |     47.0382ms |             ::1 | GET      "/api/user/me"
+[GIN] 2026/03/17 - 19:37:51 | 200 |     48.3089ms |             ::1 | GET      "/api/leaderboard"
+[GIN] 2026/03/17 - 19:44:21 | 204 |            0s |             ::1 | OPTIONS  "/api/user/me"
+[GIN] 2026/03/17 - 19:44:21 | 204 |            0s |             ::1 | OPTIONS  "/api/user/me"
+2026/03/17 19:44:21 [ACTIVITY] User 'msprajwal' accessed GET /api/user/me
+[GIN] 2026/03/17 - 19:44:21 | 200 |     95.8865ms |             ::1 | GET      "/api/user/me"
+[GIN] 2026/03/17 - 19:44:21 | 204 |            0s |             ::1 | OPTIONS  "/api/points-history"
+[GIN] 2026/03/17 - 19:44:21 | 204 |            0s |             ::1 | OPTIONS  "/api/points-history"
+2026/03/17 19:44:21 [ACTIVITY] User 'msprajwal' accessed GET /api/user/me
+[GIN] 2026/03/17 - 19:44:21 | 200 |     47.0243ms |             ::1 | GET      "/api/user/me"
+[GIN] 2026/03/17 - 19:44:21 | 200 |     96.4903ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:44:21 | 200 |     50.5372ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:44:21 | 204 |       714.3µs |             ::1 | OPTIONS  "/api/matches"
+[GIN] 2026/03/17 - 19:44:21 | 200 |    147.1033ms |             ::1 | GET      "/api/matches"
+[GIN] 2026/03/17 - 19:44:21 | 200 |       49.33ms |             ::1 | GET      "/api/matches"
+[GIN] 2026/03/17 - 19:49:26 | 204 |            0s |             ::1 | OPTIONS  "/api/points-history"
+[GIN] 2026/03/17 - 19:49:26 | 204 |            0s |             ::1 | OPTIONS  "/api/points-history"
+[GIN] 2026/03/17 - 19:49:26 | 200 |     94.1271ms |             ::1 | GET      "/api/points-history"
+[GIN] 2026/03/17 - 19:49:26 | 200 |     44.8464ms |             ::1 | GET      "/api/points-history"

@@ -13,6 +13,7 @@ function Navbar({ isAuthenticated, user, logout }) {
                         <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>Dashboard</Link>
                         <Link to="/leaderboard" className={`nav-link ${location.pathname === '/leaderboard' ? 'active' : ''}`}>Leaderboard</Link>
                         <Link to="/stats" className={`nav-link ${location.pathname === '/stats' ? 'active' : ''}`}>Stats</Link>
+                        <Link to="/past-matches" className={`nav-link ${location.pathname === '/past-matches' ? 'active' : ''}`}>Past Matches</Link>
                         {user?.role === 'admin' && (
                             <Link to="/admin" className={`nav-link ${location.pathname === '/admin' ? 'active' : ''}`} style={{ color: '#f59e0b' }}>⚙ Admin</Link>
                         )}
