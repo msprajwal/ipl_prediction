@@ -1,4 +1,4 @@
-﻿# Backend
+# Backend
 backend/ipl_prediction.db
 backend/.env
 backend/tmp/
@@ -6,6 +6,7 @@ backend/server.log
 *.exe
 *.db
 backend/tmp/
+*.log
 
 # Frontend
 frontend/node_modules/

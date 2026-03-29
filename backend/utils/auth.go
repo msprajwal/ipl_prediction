@@ -23,8 +23,14 @@ func getSecretKey() string {
 
 // HashPassword hashes a plain text password using bcrypt
 func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	return string(bytes), err
+}
+
+// NeedsRehash checks if the stored hash cost is higher than our new optimized cost (10)
+func NeedsRehash(hash string) bool {
+	cost, err := bcrypt.Cost([]byte(hash))
+	return err == nil && cost > 10
 }
 
 // CheckPasswordHash compares a plain text password with a hashed password
@@ -39,7 +45,7 @@ func GenerateToken(user models.User) (string, error) {
 		"user_id":  user.ID,
 		"username": user.Username,
 		"role":     user.Role,
-		"exp":      time.Now().Add(time.Hour * 2).Unix(),
+		"exp":      time.Now().Add(time.Hour * 24 * 7).Unix(),
 	})
 
 	tokenString, err := token.SignedString(jwtSecret)

@@ -71,7 +71,7 @@ func Register(c *gin.Context) {
 		Name:     "token",
 		Value:    token,
 		Path:     "/",
-		MaxAge:   7200,
+		MaxAge:   604800, // 7 days
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
@@ -108,6 +108,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// Optimize hash cost for existing users if they were created with cost 14
+	if utils.NeedsRehash(user.PasswordHash) {
+		if newHash, err := utils.HashPassword(input.Password); err == nil {
+			user.PasswordHash = newHash
+			db.DB.Save(&user)
+			log.Printf("[ACTIVITY] Optimized password hash cost for user '%s'", user.Username)
+		}
+	}
+
 	// Generate Token
 	token, err := utils.GenerateToken(user)
 	if err != nil {
@@ -122,7 +131,7 @@ func Login(c *gin.Context) {
 		Name:     "token",
 		Value:    token,
 		Path:     "/",
-		MaxAge:   7200,
+		MaxAge:   604800, // 7 days
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteNoneMode,

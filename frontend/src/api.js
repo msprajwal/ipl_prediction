@@ -20,4 +20,24 @@ api.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
+// Auto-logout on 401 (expired/invalid token)
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Skip auto-logout for login/register endpoints
+            const url = error.config?.url || '';
+            if (!url.includes('/login') && !url.includes('/register')) {
+                localStorage.removeItem('token');
+                // Use dynamic import to avoid circular dependency
+                import('js-cookie').then((Cookies) => {
+                    Cookies.default.remove('user');
+                });
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;
