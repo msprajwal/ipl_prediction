@@ -219,6 +219,44 @@ h1 {
   color: white;
 }
 
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-text {
+  /* text is shown next to icon by default on desktop if we wanted, but we format explicitly below */
+}
+
+/* Default Desktop Navbar overrides */
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.nav-link svg {
+  width: 18px;
+  height: 18px;
+}
+
+
 /* Auth Pages */
 .auth-container {
   display: flex;
@@ -319,49 +357,58 @@ h1 {
 ═══════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* --- Layout --- */
+  /* --- Navbar (Mobile Bottom Nav) --- */
+  .app-container {
+    padding-bottom: 70px; /* Space for fixed bottom bar */
+  }
+
   .content {
     padding: 1rem;
   }
 
-  .glass-panel {
-    padding: 1.25rem;
-    border-radius: 12px;
-  }
-
-  /* --- Typography --- */
-  h1 {
-    font-size: 1.6rem;
-  }
-
-  h2 {
-    font-size: 1.3rem;
-  }
-
-  h3 {
-    font-size: 1.1rem;
-  }
-
-  /* --- Navbar --- */
   .navbar {
-    padding: 0.75rem 1rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.5rem;
+    flex-wrap: nowrap;
+    justify-content: center;
+    background: rgba(15, 17, 21, 0.98);
+    border-top: 1px solid var(--border-color);
+    border-bottom: none;
+    z-index: 1000;
   }
 
   .logo {
-    font-size: 1.2rem;
+    display: none;
+  }
+
+  .hide-mobile {
+    display: none !important;
   }
 
   .nav-links {
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    font-size: 0.85rem;
+    width: 100%;
+    max-width: 500px;
+    justify-content: space-around;
+    gap: 0;
+  }
+
+  .nav-link {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.75rem;
+  }
+
+  .nav-link svg {
+    width: 24px;
+    height: 24px;
   }
 
   .nav-links .btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
+    display: none;
   }
 
   /* --- Grids --- */

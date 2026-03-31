@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
 import { format } from 'date-fns';
+import { getTeamLogo } from '../utils/logos';
 
 function Dashboard() {
     const [matches, setMatches] = useState([]);
@@ -77,10 +78,22 @@ function Dashboard() {
                             </div>
 
                             <div style={{ textAlign: 'center', margin: '1rem 0', flex: 1 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{match.team1}</div>
-                                    <div style={{ color: 'var(--text-muted)' }}>vs</div>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{match.team2}</div>
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                                        {getTeamLogo(match.team1) ? (
+                                            <img src={getTeamLogo(match.team1)} alt={match.team1} style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }} />
+                                        ) : (
+                                            <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{match.team1}</div>
+                                        )}
+                                    </div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 'bold', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px' }}>VS</div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                                        {getTeamLogo(match.team2) ? (
+                                            <img src={getTeamLogo(match.team2)} alt={match.team2} style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }} />
+                                        ) : (
+                                            <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{match.team2}</div>
+                                        )}
+                                    </div>
                                 </div>
                                 {getDisplayStatus(match) === 'upcoming' && (
                                     <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: '#f59e0b' }}>

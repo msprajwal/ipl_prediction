@@ -4,6 +4,7 @@ import api from '../api';
 import Cookies from 'js-cookie';
 import { format } from 'date-fns';
 import iplSquads from '../data/iplSquads';
+import { getTeamLogo } from '../utils/logos';
 
 function MatchDetails({ user }) {
     const { id } = useParams();
@@ -173,19 +174,35 @@ function MatchDetails({ user }) {
                                 </div>
                             </>
                         )}
-                        <h2 style={{
-                            fontSize: 'clamp(1.4rem, 5vw, 2.5rem)',
-                            margin: '1rem 0',
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            margin: '1.5rem 0',
+                            gap: '1rem',
                             ...(isFinal ? {
-                                fontSize: 'clamp(1.8rem, 6vw, 3rem)',
                                 background: 'linear-gradient(90deg, #fbbf24, #fff, #fbbf24)',
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
                                 fontWeight: '900'
                             } : {})
                         }}>
-                            {isFinal ? `🇮🇳 ${match.team1} vs ${match.team2} 🇳🇿` : `${match.team1} vs ${match.team2}`}
-                        </h2>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, position: 'relative' }}>
+                                {getTeamLogo(match.team1) ? (
+                                    <img src={getTeamLogo(match.team1)} alt={match.team1} style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }} />
+                                ) : (
+                                    <div style={{ fontSize: '1.6rem', fontWeight: 'bold' }}>{match.team1}</div>
+                                )}
+                            </div>
+                            <div style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>VS</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, position: 'relative' }}>
+                                {getTeamLogo(match.team2) ? (
+                                    <img src={getTeamLogo(match.team2)} alt={match.team2} style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }} />
+                                ) : (
+                                    <div style={{ fontSize: '1.6rem', fontWeight: 'bold' }}>{match.team2}</div>
+                                )}
+                            </div>
+                        </div>
                         {isFinal && (
                             <p style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: '1rem', margin: '0.5rem 0' }}>
                                 ✨ The Grand Finale — Who lifts the trophy? ✨
