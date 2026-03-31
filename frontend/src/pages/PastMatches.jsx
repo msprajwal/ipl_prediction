@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
 import { format } from 'date-fns';
+import { getTeamLogo } from '../utils/logos';
 
 function PastMatches() {
     const [matches, setMatches] = useState([]);
@@ -58,23 +59,23 @@ function PastMatches() {
                             </div>
 
                             <div style={{ textAlign: 'center', margin: '1rem 0', flex: 1 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                                    <div style={{
-                                        fontSize: '1.5rem',
-                                        fontWeight: 'bold',
-                                        color: match.actual_winner === match.team1 ? '#10b981' : 'var(--text-main)'
-                                    }}>
-                                        {match.team1}
-                                        {match.actual_winner === match.team1 && <span style={{ fontSize: '0.8rem', display: 'block', color: '#10b981' }}>🏆 Winner</span>}
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                                        {getTeamLogo(match.team1) ? (
+                                            <img src={getTeamLogo(match.team1)} alt={match.team1} style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }} onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${match.team1}&background=1e293b&color=fff&rounded=true&bold=true`; e.target.onerror = null; }} />
+                                        ) : (
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: match.actual_winner === match.team1 ? '#10b981' : 'var(--text-main)' }}>{match.team1}</div>
+                                        )}
+                                        {match.actual_winner === match.team1 && <span style={{ fontSize: '0.8rem', display: 'block', color: '#10b981', marginTop: '4px', fontWeight: 'bold' }}>🏆 Winner</span>}
                                     </div>
-                                    <div style={{ color: 'var(--text-muted)' }}>vs</div>
-                                    <div style={{
-                                        fontSize: '1.5rem',
-                                        fontWeight: 'bold',
-                                        color: match.actual_winner === match.team2 ? '#10b981' : 'var(--text-main)'
-                                    }}>
-                                        {match.team2}
-                                        {match.actual_winner === match.team2 && <span style={{ fontSize: '0.8rem', display: 'block', color: '#10b981' }}>🏆 Winner</span>}
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 'bold', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px' }}>VS</div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                                        {getTeamLogo(match.team2) ? (
+                                            <img src={getTeamLogo(match.team2)} alt={match.team2} style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }} onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${match.team2}&background=1e293b&color=fff&rounded=true&bold=true`; e.target.onerror = null; }} />
+                                        ) : (
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: match.actual_winner === match.team2 ? '#10b981' : 'var(--text-main)' }}>{match.team2}</div>
+                                        )}
+                                        {match.actual_winner === match.team2 && <span style={{ fontSize: '0.8rem', display: 'block', color: '#10b981', marginTop: '4px', fontWeight: 'bold' }}>🏆 Winner</span>}
                                     </div>
                                 </div>
                             </div>

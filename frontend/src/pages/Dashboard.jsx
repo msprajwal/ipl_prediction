@@ -81,7 +81,7 @@ function Dashboard() {
                                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                                         {getTeamLogo(match.team1) ? (
-                                            <img src={getTeamLogo(match.team1)} alt={match.team1} style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }} />
+                                            <img src={getTeamLogo(match.team1)} alt={match.team1} style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }} onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${match.team1}&background=1e293b&color=fff&rounded=true&bold=true`; e.target.onerror = null; }} />
                                         ) : (
                                             <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{match.team1}</div>
                                         )}
@@ -89,7 +89,7 @@ function Dashboard() {
                                     <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 'bold', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px' }}>VS</div>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                                         {getTeamLogo(match.team2) ? (
-                                            <img src={getTeamLogo(match.team2)} alt={match.team2} style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }} />
+                                            <img src={getTeamLogo(match.team2)} alt={match.team2} style={{ width: '64px', height: '64px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }} onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${match.team2}&background=1e293b&color=fff&rounded=true&bold=true`; e.target.onerror = null; }} />
                                         ) : (
                                             <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{match.team2}</div>
                                         )}

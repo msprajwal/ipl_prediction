@@ -67,7 +67,7 @@ function App() {
 
             <Route path="/" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
             <Route path="/match/:id" element={isAuthenticated ? <MatchDetails user={user} /> : <Navigate to="/login" />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/leaderboard" element={isAuthenticated ? <Leaderboard /> : <Navigate to="/login" />} />
             <Route path="/stats" element={isAuthenticated ? <Stats /> : <Navigate to="/login" />} />
             <Route path="/past-matches" element={isAuthenticated ? <PastMatches /> : <Navigate to="/login" />} />
             <Route path="/admin" element={isAuthenticated ? <AdminPanel user={user} /> : <Navigate to="/login" />} />

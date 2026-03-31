@@ -189,7 +189,7 @@ function MatchDetails({ user }) {
                         }}>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, position: 'relative' }}>
                                 {getTeamLogo(match.team1) ? (
-                                    <img src={getTeamLogo(match.team1)} alt={match.team1} style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }} />
+                                    <img src={getTeamLogo(match.team1)} alt={match.team1} style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }} onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${match.team1}&background=1e293b&color=fff&rounded=true&bold=true`; e.target.onerror = null; }} />
                                 ) : (
                                     <div style={{ fontSize: '1.6rem', fontWeight: 'bold' }}>{match.team1}</div>
                                 )}
@@ -197,7 +197,7 @@ function MatchDetails({ user }) {
                             <div style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: 'bold' }}>VS</div>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, position: 'relative' }}>
                                 {getTeamLogo(match.team2) ? (
-                                    <img src={getTeamLogo(match.team2)} alt={match.team2} style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }} />
+                                    <img src={getTeamLogo(match.team2)} alt={match.team2} style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }} onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${match.team2}&background=1e293b&color=fff&rounded=true&bold=true`; e.target.onerror = null; }} />
                                 ) : (
                                     <div style={{ fontSize: '1.6rem', fontWeight: 'bold' }}>{match.team2}</div>
                                 )}
