@@ -15,6 +15,7 @@ function MatchDetails({ user }) {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [timeLeft, setTimeLeft] = useState(null); // seconds until match starts
 
     const [formData, setFormData] = useState({
         predicted_winner: '',
@@ -26,6 +27,30 @@ function MatchDetails({ user }) {
     useEffect(() => {
         fetchData();
     }, [id]);
+
+    // Countdown timer — ticks every second
+    useEffect(() => {
+        if (!match || match.status !== 'upcoming') return;
+
+        const updateCountdown = () => {
+            const now = new Date();
+            const matchTime = new Date(match.match_date);
+            const diffSeconds = Math.floor((matchTime - now) / 1000);
+            setTimeLeft(diffSeconds);
+        };
+
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
+        return () => clearInterval(interval);
+    }, [match]);
+
+    const isLockedByCountdown = timeLeft !== null && timeLeft <= 300 && timeLeft > 0; // 300s = 5 min
+
+    const formatCountdown = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    };
 
     const fetchData = async () => {
         try {
@@ -194,6 +219,38 @@ function MatchDetails({ user }) {
                     {match.status === 'upcoming' && new Date() < new Date(match.match_date) ? (
                         <>
                             <h3>Your Predictions</h3>
+
+                            {/* Countdown Timer Banner — shows when < 5 min remain */}
+                            {isLockedByCountdown && (
+                                <div style={{
+                                    background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05))',
+                                    border: '1px solid rgba(239,68,68,0.5)',
+                                    borderRadius: '12px',
+                                    padding: '1.25rem',
+                                    marginBottom: '1.5rem',
+                                    textAlign: 'center',
+                                    animation: 'pulse-border 2s ease-in-out infinite'
+                                }}>
+                                    <div style={{ fontSize: '0.85rem', color: '#f87171', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>
+                                        ⏱️ Predictions Locking In
+                                    </div>
+                                    <div style={{
+                                        fontSize: '2.5rem',
+                                        fontWeight: '900',
+                                        fontFamily: 'monospace',
+                                        color: '#ef4444',
+                                        letterSpacing: '4px',
+                                        textShadow: '0 0 20px rgba(239,68,68,0.4)'
+                                    }}>
+                                        {formatCountdown(timeLeft)}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                                        ⚡ Hurry up! Predictions lock when the match starts
+                                    </div>
+                                    <style>{`@keyframes pulse-border { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 15px 3px rgba(239,68,68,0.15); } }`}</style>
+                                </div>
+                            )}
+
                             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
                                 Predict before the match starts. You can change it until then.
                             </p>
