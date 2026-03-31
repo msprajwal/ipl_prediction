@@ -46,23 +46,35 @@ function Stats() {
     }, []);
 
     const chartData = data ? {
-        labels: data.matches,
+        // Simplify X-axis to "Match 1", "Match 2", etc.
+        labels: data.matches.map((_, i) => `Match ${i + 1}`),
         datasets: (data.users || []).map((user, i) => {
             const isMe = user.username === currentUser;
+            
+            // Calculate cumulative points
+            let cumulative = 0;
+            const cumulativePoints = user.points.map(p => {
+                cumulative += p;
+                return cumulative;
+            });
+
             return {
                 label: user.username + (isMe ? ' (You)' : ''),
-                data: user.points,
+                data: cumulativePoints,
+                originalPoints: user.points, // Keep original for tooltips
                 borderColor: isMe ? '#fbbf24' : COLORS[i % COLORS.length],
                 backgroundColor: isMe ? 'rgba(251, 191, 36, 0.15)' : 'transparent',
-                borderWidth: isMe ? 3.5 : 1.5,
+                borderWidth: isMe ? 3.5 : 2.5, // Slightly bolder lines
                 pointRadius: isMe ? 6 : 3,
                 pointHoverRadius: isMe ? 9 : 6,
                 pointBackgroundColor: isMe ? '#fbbf24' : COLORS[i % COLORS.length],
                 pointBorderColor: isMe ? '#fff' : COLORS[i % COLORS.length],
                 pointBorderWidth: isMe ? 2 : 0,
-                tension: 0.3,
+                tension: 0.4, // Smoother bezier curves
                 fill: isMe,
                 order: isMe ? 0 : 1, // draw "You" on top
+                // Add hover effects
+                hoverBackgroundColor: isMe ? '#fbbf24' : COLORS[i % COLORS.length],
             };
         })
     } : null;
@@ -97,8 +109,23 @@ function Stats() {
                 padding: 12,
                 cornerRadius: 8,
                 callbacks: {
+                    title: function(context) {
+                        const matchIndex = context[0].dataIndex;
+                        return data.matches[matchIndex] || context[0].label;
+                    },
                     label: function(context) {
-                        return `${context.dataset.label}: ${context.parsed.y} pts`;
+                        const dataset = context.dataset;
+                        const matchIndex = context.dataIndex;
+                        const originalPts = dataset.originalPoints[matchIndex];
+                        const cumPts = context.parsed.y;
+                        
+                        let labelText = `${dataset.label}: ${cumPts} pts`;
+                        if (originalPts > 0) {
+                            labelText += ` (+${originalPts})`;
+                        } else {
+                            labelText += ` (0 pts)`;
+                        }
+                        return labelText;
                     }
                 }
             }

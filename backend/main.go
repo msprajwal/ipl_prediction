@@ -3,7 +3,9 @@ package main
 import (
 	"io"
 	"log"
+	"net/http"
 	"os"
+	"time"
 
 	"ipl-prediction-backend/db"
 	"ipl-prediction-backend/models"
@@ -84,6 +86,25 @@ func main() {
 
 	// Setup API Routes
 	routes.SetupRouter(r)
+
+	// Background Goroutine to keep the server awake on Render Free Tier
+	// It pings its own public URL every 14 minutes (Render sleeps after 15 min of inactivity)
+	selfURL := os.Getenv("SELF_URL")
+	if selfURL != "" {
+		go func() {
+			log.Printf("Starting keep-alive goroutine, pinging %s every 14 minutes", selfURL)
+			ticker := time.NewTicker(14 * time.Minute)
+			for range ticker.C {
+				resp, err := http.Get(selfURL)
+				if err != nil {
+					log.Println("Keep-alive ping failed:", err)
+				} else {
+					log.Printf("Keep-alive ping successful: %s - Status: %d", selfURL, resp.StatusCode)
+					resp.Body.Close()
+				}
+			}
+		}()
+	}
 
 	// Start the server
 	port := os.Getenv("PORT")
