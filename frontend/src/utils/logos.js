@@ -2,35 +2,36 @@
 // We use high-quality, transparent Wikipedia/Wikimedia or sports CDN images to prevent bloating the repository.
 
 const TeamLogos = {
-    'CSK': 'https://upload.wikimedia.org/wikipedia/en/2/2b/Chennai_Super_Kings_Logo.svg',
-    'Chennai Super Kings': 'https://upload.wikimedia.org/wikipedia/en/2/2b/Chennai_Super_Kings_Logo.svg',
+    'CSK': 'https://documents.iplt20.com/ipl/CSK/logos/Logooutline/CSKoutline.png',
+    'Chennai Super Kings': 'https://documents.iplt20.com/ipl/CSK/logos/Logooutline/CSKoutline.png',
     
-    'MI': 'https://upload.wikimedia.org/wikipedia/en/c/cd/Mumbai_Indians_Logo.svg',
-    'Mumbai Indians': 'https://upload.wikimedia.org/wikipedia/en/c/cd/Mumbai_Indians_Logo.svg',
+    'MI': 'https://documents.iplt20.com/ipl/MI/Logos/Logooutline/MIoutline.png',
+    'Mumbai Indians': 'https://documents.iplt20.com/ipl/MI/Logos/Logooutline/MIoutline.png',
     
-    'RCB': 'https://upload.wikimedia.org/wikipedia/en/2/2a/Royal_Challengers_Bengaluru_Logo.png',
-    'Royal Challengers Bangalore': 'https://upload.wikimedia.org/wikipedia/en/2/2a/Royal_Challengers_Bengaluru_Logo.png',
+    'RCB': 'https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png',
+    'Royal Challengers Bangalore': 'https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png',
+    'Royal Challengers Bengaluru': 'https://documents.iplt20.com/ipl/RCB/Logos/Logooutline/RCBoutline.png',
     
-    'KKR': 'https://upload.wikimedia.org/wikipedia/en/4/4c/Kolkata_Knight_Riders_Logo.svg',
-    'Kolkata Knight Riders': 'https://upload.wikimedia.org/wikipedia/en/4/4c/Kolkata_Knight_Riders_Logo.svg',
+    'KKR': 'https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png',
+    'Kolkata Knight Riders': 'https://documents.iplt20.com/ipl/KKR/Logos/Logooutline/KKRoutline.png',
     
-    'DC': 'https://upload.wikimedia.org/wikipedia/en/f/f5/Delhi_Capitals_Logo.svg',
-    'Delhi Capitals': 'https://upload.wikimedia.org/wikipedia/en/f/f5/Delhi_Capitals_Logo.svg',
+    'DC': 'https://documents.iplt20.com/ipl/DC/Logos/LogoOutline/DCoutline.png',
+    'Delhi Capitals': 'https://documents.iplt20.com/ipl/DC/Logos/LogoOutline/DCoutline.png',
     
-    'RR': 'https://upload.wikimedia.org/wikipedia/en/6/60/Rajasthan_Royals_Logo.svg',
-    'Rajasthan Royals': 'https://upload.wikimedia.org/wikipedia/en/6/60/Rajasthan_Royals_Logo.svg',
+    'RR': 'https://documents.iplt20.com/ipl/RR/Logos/Logooutline/RRoutline.png',
+    'Rajasthan Royals': 'https://documents.iplt20.com/ipl/RR/Logos/Logooutline/RRoutline.png',
     
-    'SRH': 'https://upload.wikimedia.org/wikipedia/en/8/81/Sunrisers_Hyderabad.svg',
-    'Sunrisers Hyderabad': 'https://upload.wikimedia.org/wikipedia/en/8/81/Sunrisers_Hyderabad.svg',
+    'SRH': 'https://documents.iplt20.com/ipl/SRH/Logos/Logooutline/SRHoutline.png',
+    'Sunrisers Hyderabad': 'https://documents.iplt20.com/ipl/SRH/Logos/Logooutline/SRHoutline.png',
     
-    'PBKS': 'https://upload.wikimedia.org/wikipedia/en/d/d4/Punjab_Kings_Logo.svg',
-    'Punjab Kings': 'https://upload.wikimedia.org/wikipedia/en/d/d4/Punjab_Kings_Logo.svg',
+    'PBKS': 'https://documents.iplt20.com/ipl/PBKS/Logos/Logooutline/PBKSoutline.png',
+    'Punjab Kings': 'https://documents.iplt20.com/ipl/PBKS/Logos/Logooutline/PBKSoutline.png',
     
-    'GT': 'https://upload.wikimedia.org/wikipedia/en/0/09/Gujarat_Titans_Logo.svg',
-    'Gujarat Titans': 'https://upload.wikimedia.org/wikipedia/en/0/09/Gujarat_Titans_Logo.svg',
+    'GT': 'https://documents.iplt20.com/ipl/GT/Logos/Logooutline/GToutline.png',
+    'Gujarat Titans': 'https://documents.iplt20.com/ipl/GT/Logos/Logooutline/GToutline.png',
     
-    'LSG': 'https://upload.wikimedia.org/wikipedia/en/a/a9/Lucknow_Super_Giants_IPL_Logo.svg',
-    'Lucknow Super Giants': 'https://upload.wikimedia.org/wikipedia/en/a/a9/Lucknow_Super_Giants_IPL_Logo.svg',
+    'LSG': 'https://documents.iplt20.com/ipl/LSG/Logos/Logooutline/LSGoutline.png',
+    'Lucknow Super Giants': 'https://documents.iplt20.com/ipl/LSG/Logos/Logooutline/LSGoutline.png',
 };
 
 /**
