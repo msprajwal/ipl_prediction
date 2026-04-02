@@ -98,6 +98,18 @@ function AdminPanel({ user }) {
         }
     };
 
+    const handleUpdateUserGroup = async (userId, newGroup) => {
+        setError('');
+        setSuccess('');
+        try {
+            await api.patch(`/api/admin/users/${userId}/group`, { group: newGroup });
+            setSuccess(`User group updated to ${newGroup}!`);
+            fetchUsers(); // Refresh the list
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to update user group');
+        }
+    };
+
     const renderPlayerDropdown = (match, field, label) => (
         <select className="form-control"
             onChange={e => setResultForm(prev => ({ ...prev, [field]: e.target.value }))}
@@ -283,6 +295,61 @@ function AdminPanel({ user }) {
                         ))}
                     </div>
                 )}
+            </div>
+
+            {/* USER MANAGEMENT */}
+            <div className="glass-panel" style={{ marginTop: '2rem' }}>
+                <h3>User Management</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                    Assign users to either the **Family** or **Friends** groups to separate their point totals.
+                </p>
+                <div style={{ width: '100%', overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                            <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                <th style={{ padding: '0.75rem' }}>Username</th>
+                                <th style={{ padding: '0.75rem' }}>Email</th>
+                                <th style={{ padding: '0.75rem' }}>Group</th>
+                                <th style={{ padding: '0.75rem', textAlign: 'right' }}>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {users.map(u => (
+                                <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <td style={{ padding: '0.75rem' }}>
+                                        {u.username} {u.username === user.username && <span style={{ fontSize: '0.7rem', background: 'rgba(59,130,246,0.2)', color: '#60a5fa', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px' }}>YOU</span>}
+                                    </td>
+                                    <td style={{ padding: '0.75rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{u.email}</td>
+                                    <td style={{ padding: '0.75rem' }}>
+                                        <span style={{ 
+                                            textTransform: 'capitalize', 
+                                            padding: '4px 8px', 
+                                            borderRadius: '12px', 
+                                            fontSize: '0.75rem',
+                                            background: u.group === 'friends' ? 'rgba(168,85,247,0.2)' : 'rgba(16,185,129,0.2)',
+                                            color: u.group === 'friends' ? '#a855f7' : '#10b981'
+                                        }}>
+                                            {u.group}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '0.75rem', textAlign: 'right' }}>
+                                        {u.group === 'family' ? (
+                                            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem' }}
+                                                onClick={() => handleUpdateUserGroup(u.id, 'friends')}>
+                                                Move to Friends
+                                            </button>
+                                        ) : (
+                                            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem' }}
+                                                onClick={() => handleUpdateUserGroup(u.id, 'family')}>
+                                                Move to Family
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* DANGER ZONE - RESET DB */}
