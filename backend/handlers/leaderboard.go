@@ -15,31 +15,25 @@ type LeaderboardUser struct {
 }
 
 func GetLeaderboard(c *gin.Context) {
-	// Public endpoint: if unauthenticated, allow choosing group via query param.
-	// If authenticated, default to the user's group; admins may override via query param.
-	targetGroup := "family"
-	if queryGroup := c.Query("group"); queryGroup != "" {
-		targetGroup = queryGroup
-	}
-
+	// Identify requesting user (AuthRequired middleware must set userID)
 	userID, exists := c.Get("userID")
-	if exists {
-		var currentUser models.User
-		if err := db.DB.First(&currentUser, userID).Error; err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
-			return
-		}
-		targetGroup = currentUser.Group
-		if currentUser.Role == "admin" {
-			if queryGroup := c.Query("group"); queryGroup != "" {
-				targetGroup = queryGroup
-			}
-		}
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
 	}
 
-	if targetGroup != "family" && targetGroup != "friends" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid group. Must be 'family' or 'friends'"})
+	var currentUser models.User
+	if err := db.DB.First(&currentUser, userID).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
 		return
+	}
+
+	targetGroup := currentUser.Group
+	if currentUser.Role == "admin" {
+		queryGroup := c.Query("group")
+		if queryGroup != "" {
+			targetGroup = queryGroup
+		}
 	}
 
 	var users []models.User
