@@ -33,6 +33,9 @@ func main() {
 		log.Fatal("Failed to auto-migrate database schema:", err)
 	}
 
+	// Backfill: Assign existing users to 'family' group if not set
+	database.Model(&models.User{}).Where("\"group\" IS NULL OR \"group\" = ''").Update("group", "family")
+
 	// Seed admin user if not exists (credentials from env vars)
 	adminUsername := os.Getenv("ADMIN_USERNAME")
 	adminPassword := os.Getenv("ADMIN_PASSWORD")
