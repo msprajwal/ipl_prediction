@@ -49,6 +49,7 @@ func Register(c *gin.Context) {
 		Username:     input.Username,
 		Email:        input.Email,
 		PasswordHash: hashedPassword,
+		Group:        "friends",
 	}
 
 	// Save user
@@ -85,6 +86,7 @@ func Register(c *gin.Context) {
 			"username": user.Username,
 			"email":    user.Email,
 			"role":     user.Role,
+			"group":    user.Group,
 		},
 	})
 }
@@ -145,6 +147,7 @@ func Login(c *gin.Context) {
 			"username": user.Username,
 			"email":    user.Email,
 			"role":     user.Role,
+			"group":    user.Group,
 		},
 	})
 }
@@ -187,6 +190,7 @@ func GetMe(c *gin.Context) {
 		"username":     user.Username,
 		"email":        user.Email,
 		"role":         user.Role,
+		"group":        user.Group,
 		"total_points": user.TotalPoints,
 	})
 }

@@ -204,3 +204,64 @@ func UpdateMatchTime(c *gin.Context) {
 	log.Printf("[ADMIN] Match #%s (%s vs %s) time updated to %s", matchID, match.Team1, match.Team2, newTime.String())
 	c.JSON(http.StatusOK, gin.H{"message": "Match time updated successfully", "match": match})
 }
+
+// GetAllUsers returns a list of all registered users (admin only)
+func GetAllUsers(c *gin.Context) {
+	var users []models.User
+	if err := db.DB.Order("id asc").Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+		return
+	}
+	
+	// Create response dropping password hashes
+	type UserResponse struct {
+		ID       uint   `json:"id"`
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		Role     string `json:"role"`
+		Group    string `json:"group"`
+	}
+	
+	var userList []UserResponse
+	for _, u := range users {
+		userList = append(userList, UserResponse{
+			ID:       u.ID,
+			Username: u.Username,
+			Email:    u.Email,
+			Role:     u.Role,
+			Group:    u.Group,
+		})
+	}
+	c.JSON(http.StatusOK, userList)
+}
+
+type UpdateUserGroupInput struct {
+	Group string `json:"group" binding:"required"`
+}
+
+// UpdateUserGroup modifies a user's assigned group (admin only)
+func UpdateUserGroup(c *gin.Context) {
+	userID := c.Param("id")
+	
+	var input UpdateUserGroupInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if input.Group != "family" && input.Group != "friends" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid group. Must be 'family' or 'friends'"})
+		return
+	}
+
+	var user models.User
+	if err := db.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	user.Group = input.Group
+	db.DB.Save(&user)
+
+	c.JSON(http.StatusOK, gin.H{"message": "User group updated", "user": user})
+}

@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 
-function Leaderboard() {
+import { useState, useEffect } from 'react';
+import api from '../api';
+
+function Leaderboard({ user }) {
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [group, setGroup] = useState(user?.group || 'family');
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
+            setLoading(true);
             try {
-                const response = await api.get('/api/leaderboard');
+                const response = await api.get(`/api/leaderboard?group=${group}`);
                 setLeaderboard(response.data || []);
             } catch (error) {
                 console.error("Error fetching leaderboard", error);
@@ -17,13 +22,30 @@ function Leaderboard() {
             }
         };
         fetchLeaderboard();
-    }, []);
+    }, [group]);
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                <h1 style={{ fontSize: '2.5rem' }}>Global Leaderboard</h1>
-                <p style={{ color: 'var(--text-muted)' }}>Top IPL Predictors of 2026</p>
+                <h1 style={{ fontSize: '2.5rem' }}>Leaderboard</h1>
+                {user?.role === 'admin' ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem' }}>
+                        <button 
+                            className={`btn ${group === 'family' ? '' : 'btn-secondary'}`}
+                            onClick={() => setGroup('family')}
+                            style={{ padding: '0.4rem 1.2rem', borderRadius: '20px' }}>
+                            Family Group
+                        </button>
+                        <button 
+                            className={`btn ${group === 'friends' ? '' : 'btn-secondary'}`}
+                            onClick={() => setGroup('friends')}
+                            style={{ padding: '0.4rem 1.2rem', borderRadius: '20px' }}>
+                            Friends Group
+                        </button>
+                    </div>
+                ) : (
+                    <p style={{ color: 'var(--text-muted)' }}>{user?.group === 'friends' ? 'Friends League' : 'Family League'} • Top IPL Predictors of 2026</p>
+                )}
             </div>
 
             <div className="glass-panel" style={{ padding: '0' }}>

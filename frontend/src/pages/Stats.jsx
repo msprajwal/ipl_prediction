@@ -23,9 +23,10 @@ const COLORS = [
     '#f43f5e', '#0ea5e9', '#84cc16', '#d946ef', '#64748b'
 ];
 
-function Stats() {
+function Stats({ user }) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [group, setGroup] = useState(user?.group || 'family');
 
     // Get current logged-in username
     const userData = Cookies.get('user');
@@ -33,8 +34,9 @@ function Stats() {
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
             try {
-                const res = await api.get('/api/points-history');
+                const res = await api.get(`/api/points-history?group=${group}`);
                 setData(res.data);
             } catch (err) {
                 console.error('Failed to fetch points history', err);
@@ -43,14 +45,14 @@ function Stats() {
             }
         };
         fetchData();
-    }, []);
+    }, [group]);
 
     const chartData = data ? {
         // Simplify X-axis to "Match 1", "Match 2", etc.
         labels: data.matches.map((_, i) => `Match ${i + 1}`),
         datasets: (data.users || []).map((user, i) => {
             const isMe = user.username === currentUser;
-            
+
             // Calculate cumulative points
             let cumulative = 0;
             const cumulativePoints = user.points.map(p => {
@@ -109,16 +111,16 @@ function Stats() {
                 padding: 12,
                 cornerRadius: 8,
                 callbacks: {
-                    title: function(context) {
+                    title: function (context) {
                         const matchIndex = context[0].dataIndex;
                         return data.matches[matchIndex] || context[0].label;
                     },
-                    label: function(context) {
+                    label: function (context) {
                         const dataset = context.dataset;
                         const matchIndex = context.dataIndex;
                         const originalPts = dataset.originalPoints[matchIndex];
                         const cumPts = context.parsed.y;
-                        
+
                         let labelText = `${dataset.label}: ${cumPts} pts`;
                         if (originalPts > 0) {
                             labelText += ` (+${originalPts})`;
@@ -167,9 +169,26 @@ function Stats() {
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
             <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
                 <h1 style={{ fontSize: '2.5rem' }}>📊 Points Tracker</h1>
-                <p style={{ color: 'var(--text-muted)' }}>
-                    Rise & fall — see how everyone performed match by match
-                </p>
+                {user?.role === 'admin' ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem' }}>
+                        <button 
+                            className={`btn ${group === 'family' ? '' : 'btn-secondary'}`}
+                            onClick={() => setGroup('family')}
+                            style={{ padding: '0.4rem 1.2rem', borderRadius: '20px' }}>
+                            Family Group
+                        </button>
+                        <button 
+                            className={`btn ${group === 'friends' ? '' : 'btn-secondary'}`}
+                            onClick={() => setGroup('friends')}
+                            style={{ padding: '0.4rem 1.2rem', borderRadius: '20px' }}>
+                            Friends Group
+                        </button>
+                    </div>
+                ) : (
+                    <p style={{ color: 'var(--text-muted)' }}>
+                        {user?.group === 'friends' ? 'Friends League' : 'Family League'} • Rise & fall — see how everyone performed match by match
+                    </p>
+                )}
             </div>
 
             <div className="glass-panel" style={{ padding: '1.5rem' }}>

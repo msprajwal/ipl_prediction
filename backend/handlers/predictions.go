@@ -97,6 +97,26 @@ func GetMyPredictions(c *gin.Context) {
 func GetPublicPredictions(c *gin.Context) {
 	matchID := c.Param("matchId")
 
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	var currentUser models.User
+	if err := db.DB.First(&currentUser, userID).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
+		return
+	}
+
+	targetGroup := currentUser.Group
+	if currentUser.Role == "admin" {
+		queryGroup := c.Query("group")
+		if queryGroup != "" {
+			targetGroup = queryGroup
+		}
+	}
+
 	// Only allow fetching if match is completed
 	var match models.Match
 	if err := db.DB.First(&match, matchID).Error; err != nil {
@@ -104,14 +124,17 @@ func GetPublicPredictions(c *gin.Context) {
 		return
 	}
 
-	// Allow viewing if: match completed, all users predicted, or match time has passed (locked)
+	// Allow viewing if: match completed, all users IN THE GROUP predicted, or match time has passed (locked)
 	if match.Status != "completed" && !time.Now().After(match.MatchDate) {
-		// Check if all users have predicted
+		// Check if all users IN TARGET GROUP have predicted
 		var totalUsers int64
-		db.DB.Model(&models.User{}).Count(&totalUsers)
+		db.DB.Model(&models.User{}).Where("`group` = ?", targetGroup).Count(&totalUsers)
 
 		var totalPredictions int64
-		db.DB.Model(&models.Prediction{}).Where("match_id = ?", matchID).Count(&totalPredictions)
+		db.DB.Table("predictions").
+			Joins("JOIN users ON users.id = predictions.user_id").
+			Where("predictions.match_id = ? AND users.group = ?", matchID, targetGroup).
+			Count(&totalPredictions)
 
 		if totalPredictions < totalUsers {
 			c.JSON(http.StatusForbidden, gin.H{
@@ -124,7 +147,10 @@ func GetPublicPredictions(c *gin.Context) {
 	}
 
 	var predictions []models.Prediction
-	if err := db.DB.Preload("User").Where("match_id = ?", matchID).Find(&predictions).Error; err != nil {
+	if err := db.DB.Preload("User").
+		Joins("JOIN users ON users.id = predictions.user_id").
+		Where("predictions.match_id = ? AND users.group = ?", matchID, targetGroup).
+		Find(&predictions).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch public predictions"})
 		return
 	}

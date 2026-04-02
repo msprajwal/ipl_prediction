@@ -6,6 +6,7 @@ import iplSquads from '../data/iplSquads';
 
 function AdminPanel({ user }) {
     const [matches, setMatches] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -38,20 +39,31 @@ function AdminPanel({ user }) {
 
     const teamCodes = Object.keys(iplSquads);
 
-    useEffect(() => {
-        fetchMatches();
-    }, []);
-
     const fetchMatches = async () => {
         try {
             const res = await api.get('/api/matches');
             setMatches(res.data || []);
         } catch (err) {
             setError('Failed to load matches');
+        }
+    };
+
+    const fetchUsers = async () => {
+        if (user?.role !== 'admin') return;
+        try {
+            const res = await api.get('/api/admin/users');
+            setUsers(res.data || []);
+        } catch (err) {
+            setError('Failed to load users');
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchMatches();
+        fetchUsers();
+    }, []);
 
     const handleCreateMatch = async (e) => {
         e.preventDefault();

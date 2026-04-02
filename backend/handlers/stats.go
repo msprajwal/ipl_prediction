@@ -10,8 +10,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetPointsHistory returns per-match points for all users across completed matches
+// GetPointsHistory returns per-match points for users in a specific group across completed matches
 func GetPointsHistory(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	var currentUser models.User
+	if err := db.DB.First(&currentUser, userID).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
+		return
+	}
+
+	targetGroup := currentUser.Group
+	if currentUser.Role == "admin" {
+		queryGroup := c.Query("group")
+		if queryGroup != "" {
+			targetGroup = queryGroup
+		}
+	}
 	// Get all completed matches ordered by date
 	var matches []models.Match
 	if err := db.DB.Where("status = ?", "completed").Order("match_date ASC").Find(&matches).Error; err != nil {
@@ -24,9 +43,9 @@ func GetPointsHistory(c *gin.Context) {
 		return
 	}
 
-	// Get all users
+	// Get all users in the specific group
 	var users []models.User
-	db.DB.Order("total_points DESC").Find(&users)
+	db.DB.Where("`group` = ?", targetGroup).Order("total_points DESC").Find(&users)
 
 	// Get all predictions for completed matches
 	var predictions []models.Prediction

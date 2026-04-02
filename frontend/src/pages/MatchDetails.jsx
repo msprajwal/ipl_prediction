@@ -17,6 +17,7 @@ function MatchDetails({ user }) {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [timeLeft, setTimeLeft] = useState(null); // seconds until match starts
+    const [group, setGroup] = useState(user?.group || 'family');
 
     const [formData, setFormData] = useState({
         predicted_winner: '',
@@ -27,7 +28,7 @@ function MatchDetails({ user }) {
 
     useEffect(() => {
         fetchData();
-    }, [id]);
+    }, [id, group]);
 
     // Countdown timer — ticks every second
     useEffect(() => {
@@ -79,7 +80,7 @@ function MatchDetails({ user }) {
             const matchTimePassed = new Date() >= new Date(matchRes.data.match_date);
             if (matchRes.data.status === 'completed' || matchTimePassed) {
                 try {
-                    const publicRes = await api.get(`/api/user/matches/${id}/predictions`);
+                    const publicRes = await api.get(`/api/user/matches/${id}/predictions?group=${group}`);
                     setPublicPredictions(publicRes.data || []);
                 } catch (e) {
                     // 403 = not all users predicted yet and match hasn't started, ignore
@@ -427,10 +428,30 @@ function MatchDetails({ user }) {
                         </div>
                     ) : (
                         <div>
-                            <h3>Community Predictions</h3>
-                            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                                See what everyone else predicted and how many points they earned.
-                            </p>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <div>
+                                    <h3 style={{ margin: 0 }}>Community Predictions</h3>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
+                                        See what everyone else predicted and how many points they earned.
+                                    </p>
+                                </div>
+                                {user?.role === 'admin' && (
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button 
+                                            className={`btn ${group === 'family' ? '' : 'btn-secondary'}`}
+                                            onClick={() => setGroup('family')}
+                                            style={{ padding: '0.3rem 0.8rem', borderRadius: '15px', fontSize: '0.8rem' }}>
+                                            Family
+                                        </button>
+                                        <button 
+                                            className={`btn ${group === 'friends' ? '' : 'btn-secondary'}`}
+                                            onClick={() => setGroup('friends')}
+                                            style={{ padding: '0.3rem 0.8rem', borderRadius: '15px', fontSize: '0.8rem' }}>
+                                            Friends
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
 
                             {publicPredictions.length === 0 ? (
                                 <p style={{ color: 'var(--text-muted)' }}>No predictions found for this match.</p>

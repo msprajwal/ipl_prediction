@@ -15,8 +15,29 @@ type LeaderboardUser struct {
 }
 
 func GetLeaderboard(c *gin.Context) {
+	// Identify requesting user
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	var currentUser models.User
+	if err := db.DB.First(&currentUser, userID).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user"})
+		return
+	}
+
+	targetGroup := currentUser.Group
+	if currentUser.Role == "admin" {
+		queryGroup := c.Query("group")
+		if queryGroup != "" {
+			targetGroup = queryGroup
+		}
+	}
+
 	var users []models.User
-	if err := db.DB.Order("total_points desc").Limit(100).Find(&users).Error; err != nil {
+	if err := db.DB.Where("`group` = ?", targetGroup).Order("total_points desc").Limit(100).Find(&users).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch leaderboard"})
 		return
 	}
