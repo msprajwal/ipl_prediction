@@ -128,7 +128,12 @@ func UpdateMatchResult(c *gin.Context) {
 
 	for _, u := range allUsers {
 		if !predictedUserIDs[u.ID] {
-			// Create a penalty prediction record
+			pointsEarned := -1
+			if u.Group == "friends" {
+				pointsEarned = 0
+			}
+
+			// Create a "no prediction" record
 			penalty := models.Prediction{
 				UserID:               u.ID,
 				MatchID:              match.ID,
@@ -136,13 +141,15 @@ func UpdateMatchResult(c *gin.Context) {
 				PredictedRunScorer:   "NO PREDICTION",
 				PredictedWicketTaker: "NO PREDICTION",
 				PredictedPOTM:        "NO PREDICTION",
-				PointsEarned:         -1,
+				PointsEarned:         pointsEarned,
 			}
 			db.DB.Create(&penalty)
 
-			// Deduct 1 point from user
-			u.TotalPoints -= 1
-			db.DB.Save(&u)
+			// Only deduct points if pointsEarned is negative (for non-friends)
+			if pointsEarned < 0 {
+				u.TotalPoints += pointsEarned
+				db.DB.Save(&u)
+			}
 		}
 	}
 
