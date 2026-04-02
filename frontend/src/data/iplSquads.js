@@ -33,7 +33,7 @@ const iplSquads = {
         "Cameron Green", "Finn Allen", "Matheesha Pathirana", "Tejasvi Singh",
         "Kartik Tyagi", "Prashant Solanki", "Rahul Tripathi", "Tim Seifert",
         "Mustafizur Rahman", "Sarthak Ranjan", "Daksh Kamra", "Rachin Ravindra",
-        "Akash Deep"
+        "Akash Deep", "Blessing Muzarabani", "Saurabh Dubey", "Tejasvi Dahiya"
     ],
     DC: [
         "Axar Patel", "KL Rahul", "Abishek Porel", "Tristan Stubbs",
