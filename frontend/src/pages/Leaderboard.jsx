@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 
-import { useState, useEffect } from 'react';
-import api from '../api';
-
 function Leaderboard({ user }) {
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
