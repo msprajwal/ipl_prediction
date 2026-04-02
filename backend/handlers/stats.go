@@ -45,7 +45,7 @@ func GetPointsHistory(c *gin.Context) {
 
 	// Get all users in the specific group
 	var users []models.User
-	db.DB.Where("`group` = ?", targetGroup).Order("total_points DESC").Find(&users)
+	db.DB.Where("\"group\" = ?", targetGroup).Order("total_points DESC").Find(&users)
 
 	// Get all predictions for completed matches
 	var predictions []models.Prediction

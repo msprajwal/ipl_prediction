@@ -128,7 +128,7 @@ func GetPublicPredictions(c *gin.Context) {
 	if match.Status != "completed" && !time.Now().After(match.MatchDate) {
 		// Check if all users IN TARGET GROUP have predicted
 		var totalUsers int64
-		db.DB.Model(&models.User{}).Where("`group` = ?", targetGroup).Count(&totalUsers)
+		db.DB.Model(&models.User{}).Where("\"group\" = ?", targetGroup).Count(&totalUsers)
 
 		var totalPredictions int64
 		db.DB.Table("predictions").

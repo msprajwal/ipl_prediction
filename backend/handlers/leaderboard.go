@@ -37,7 +37,7 @@ func GetLeaderboard(c *gin.Context) {
 	}
 
 	var users []models.User
-	if err := db.DB.Where("`group` = ?", targetGroup).Order("total_points desc").Limit(100).Find(&users).Error; err != nil {
+	if err := db.DB.Where("\"group\" = ?", targetGroup).Order("total_points desc").Limit(100).Find(&users).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch leaderboard"})
 		return
 	}
