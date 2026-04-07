@@ -43,15 +43,15 @@ function PastMatches() {
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                 <span style={{
-                                    background: 'rgba(16, 185, 129, 0.15)',
+                                    background: match.status === 'cancelled' ? 'rgba(107, 114, 128, 0.15)' : 'rgba(16, 185, 129, 0.15)',
                                     padding: '4px 10px',
                                     borderRadius: '12px',
                                     fontSize: '0.8rem',
-                                    color: '#10b981',
+                                    color: match.status === 'cancelled' ? '#9ca3af' : '#10b981',
                                     fontWeight: 'bold',
                                     textTransform: 'uppercase'
                                 }}>
-                                    ✓ Completed
+                                    {match.status === 'cancelled' ? '🌧️ Cancelled' : '✓ Completed'}
                                 </span>
                                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                                     {format(new Date(match.match_date), 'MMM dd, yyyy')}
@@ -66,7 +66,7 @@ function PastMatches() {
                                         ) : (
                                             <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: match.actual_winner === match.team1 ? '#10b981' : 'var(--text-main)' }}>{match.team1}</div>
                                         )}
-                                        {match.actual_winner === match.team1 && <span style={{ fontSize: '0.8rem', display: 'block', color: '#10b981', marginTop: '4px', fontWeight: 'bold' }}>🏆 Winner</span>}
+                                        {match.status !== 'cancelled' && match.actual_winner === match.team1 && <span style={{ fontSize: '0.8rem', display: 'block', color: '#10b981', marginTop: '4px', fontWeight: 'bold' }}>🏆 Winner</span>}
                                     </div>
                                     <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 'bold', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px' }}>VS</div>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
@@ -75,7 +75,7 @@ function PastMatches() {
                                         ) : (
                                             <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: match.actual_winner === match.team2 ? '#10b981' : 'var(--text-main)' }}>{match.team2}</div>
                                         )}
-                                        {match.actual_winner === match.team2 && <span style={{ fontSize: '0.8rem', display: 'block', color: '#10b981', marginTop: '4px', fontWeight: 'bold' }}>🏆 Winner</span>}
+                                        {match.status !== 'cancelled' && match.actual_winner === match.team2 && <span style={{ fontSize: '0.8rem', display: 'block', color: '#10b981', marginTop: '4px', fontWeight: 'bold' }}>🏆 Winner</span>}
                                     </div>
                                 </div>
                             </div>
@@ -85,7 +85,7 @@ function PastMatches() {
                                 className="btn btn-secondary"
                                 style={{ textAlign: 'center', display: 'block', marginTop: '1rem' }}
                             >
-                                View Results & Predictions
+                                {match.status === 'cancelled' ? 'View Predictions' : 'View Results & Predictions'}
                             </Link>
                         </div>
                     ))}

@@ -78,7 +78,7 @@ function MatchDetails({ user }) {
 
             // 3. Fetch public predictions if match is completed or match time has passed
             const matchTimePassed = new Date() >= new Date(matchRes.data.match_date);
-            if (matchRes.data.status === 'completed' || matchTimePassed) {
+            if (matchRes.data.status === 'completed' || matchRes.data.status === 'cancelled' || matchTimePassed) {
                 try {
                     const publicRes = await api.get(`/api/user/matches/${id}/predictions?group=${group}`);
                     setPublicPredictions(publicRes.data || []);
@@ -216,7 +216,7 @@ function MatchDetails({ user }) {
                             <span style={{
                                 background: isFinal
                                     ? 'linear-gradient(90deg, #fbbf24, #d97706)'
-                                    : match.status === 'completed' ? '#10b981' : (match.status === 'upcoming' && new Date() >= new Date(match.match_date)) ? '#f59e0b' : match.status === 'active' ? '#ef4444' : '#3b82f6',
+                                    : match.status === 'cancelled' ? '#6b7280' : match.status === 'completed' ? '#10b981' : (match.status === 'upcoming' && new Date() >= new Date(match.match_date)) ? '#f59e0b' : match.status === 'active' ? '#ef4444' : '#3b82f6',
                                 padding: isFinal ? '8px 24px' : '6px 16px',
                                 borderRadius: '20px',
                                 fontSize: isFinal ? '1rem' : '0.9rem',
@@ -371,6 +371,24 @@ function MatchDetails({ user }) {
                             {myPrediction && (
                                 <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(59,130,246,0.1)', borderRadius: '8px', border: '1px solid #3b82f6' }}>
                                     <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Your prediction:</p>
+                                    <p><strong>Winner:</strong> {myPrediction.predicted_winner}</p>
+                                    <p><strong>Highest Runs:</strong> {myPrediction.predicted_run_scorer}</p>
+                                    <p><strong>Highest Wickets:</strong> {myPrediction.predicted_wicket_taker}</p>
+                                    <p><strong>POTM:</strong> {myPrediction.predicted_potm}</p>
+                                </div>
+                            )}
+                        </>
+                    ) : match.status === 'cancelled' ? (
+                        <>
+                            <h3>Match Cancelled</h3>
+                            <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(107,114,128,0.1)', borderRadius: '8px', border: '1px solid #6b7280', textAlign: 'center' }}>
+                                <span style={{ fontSize: '2.5rem' }}>🌧️</span>
+                                <p style={{ color: '#9ca3af', marginTop: '1rem', fontSize: '1rem' }}>This match was abandoned/cancelled.</p>
+                                <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem', fontSize: '0.85rem' }}>No points were awarded or deducted for this match.</p>
+                            </div>
+                            {myPrediction && (
+                                <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(59,130,246,0.1)', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Your prediction (no points):</p>
                                     <p><strong>Winner:</strong> {myPrediction.predicted_winner}</p>
                                     <p><strong>Highest Runs:</strong> {myPrediction.predicted_run_scorer}</p>
                                     <p><strong>Highest Wickets:</strong> {myPrediction.predicted_wicket_taker}</p>

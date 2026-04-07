@@ -21,7 +21,7 @@ func GetMatches(c *gin.Context) {
 
 func GetCompletedMatches(c *gin.Context) {
 	var matches []models.Match
-	if err := db.DB.Where("status = ?", "completed").Order("match_date desc").Find(&matches).Error; err != nil {
+	if err := db.DB.Where("status IN ?", []string{"completed", "cancelled"}).Order("match_date desc").Find(&matches).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch completed matches"})
 		return
 	}
