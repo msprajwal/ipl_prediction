@@ -124,8 +124,8 @@ func GetPublicPredictions(c *gin.Context) {
 		return
 	}
 
-	// Allow viewing if: match completed, all users IN THE GROUP predicted, or match time has passed (locked)
-	if match.Status != "completed" && !time.Now().After(match.MatchDate) {
+	// Allow viewing if: match completed/cancelled, all users IN THE GROUP predicted, or match time has passed (locked)
+	if match.Status != "completed" && match.Status != "cancelled" && !time.Now().After(match.MatchDate) {
 		// Check if all users IN TARGET GROUP have predicted
 		var totalUsers int64
 		db.DB.Model(&models.User{}).Where("\"group\" = ?", targetGroup).Count(&totalUsers)

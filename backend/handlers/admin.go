@@ -37,11 +37,11 @@ func ResetDatabase(c *gin.Context) {
 
 // Admin-only struct to update match results
 type UpdateMatchResultInput struct {
-	Status            string `json:"status" binding:"required"` // should transition to 'completed'
-	ActualWinner      string `json:"actual_winner" binding:"required"`
-	ActualRunScorer   string `json:"actual_run_scorer" binding:"required"`
-	ActualWicketTaker string `json:"actual_wicket_taker" binding:"required"`
-	ActualPOTM        string `json:"actual_potm" binding:"required"`
+	Status            string `json:"status" binding:"required"` // 'completed' or 'cancelled'
+	ActualWinner      string `json:"actual_winner"`
+	ActualRunScorer   string `json:"actual_run_scorer"`
+	ActualWicketTaker string `json:"actual_wicket_taker"`
+	ActualPOTM        string `json:"actual_potm"`
 }
 
 // AdminRequired checks that the authenticated user has the "admin" role.
@@ -73,8 +73,23 @@ func UpdateMatchResult(c *gin.Context) {
 		return
 	}
 
-	if match.Status == "completed" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Match is already completed. Cannot recalculate."})
+	if match.Status == "completed" || match.Status == "cancelled" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Match is already completed or cancelled. Cannot update."})
+		return
+	}
+
+	// Handle cancelled/abandoned matches (e.g. rain)
+	if input.Status == "cancelled" {
+		match.Status = "cancelled"
+		db.DB.Save(&match)
+		log.Printf("[ADMIN] Match #%s (%s vs %s) marked as cancelled/abandoned", matchID, match.Team1, match.Team2)
+		c.JSON(http.StatusOK, gin.H{"message": "Match marked as cancelled. No points awarded or deducted.", "match": match})
+		return
+	}
+
+	// For completed matches, require all result fields
+	if input.ActualWinner == "" || input.ActualRunScorer == "" || input.ActualWicketTaker == "" || input.ActualPOTM == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "All result fields are required when completing a match"})
 		return
 	}
 

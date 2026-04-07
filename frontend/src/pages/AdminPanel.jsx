@@ -98,6 +98,19 @@ function AdminPanel({ user }) {
         }
     };
 
+    const handleCancelMatch = async (matchId) => {
+        if (!window.confirm('Are you sure you want to mark this match as cancelled/abandoned? No points will be awarded or deducted.')) return;
+        setError('');
+        setSuccess('');
+        try {
+            await api.put(`/api/admin/matches/${matchId}/result`, { status: 'cancelled' });
+            setSuccess(`Match #${matchId} marked as cancelled/abandoned.`);
+            fetchMatches();
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to cancel match');
+        }
+    };
+
     const handleUpdateUserGroup = async (userId, newGroup) => {
         setError('');
         setSuccess('');
@@ -212,7 +225,7 @@ function AdminPanel({ user }) {
                                         <span style={{
                                             marginLeft: '1rem', padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem',
                                             fontWeight: 'bold', textTransform: 'uppercase',
-                                            background: match.status === 'completed' ? '#10b981' : match.status === 'active' ? '#ef4444' : '#3b82f6',
+                                            background: match.status === 'completed' ? '#10b981' : match.status === 'cancelled' ? '#6b7280' : match.status === 'active' ? '#ef4444' : '#3b82f6',
                                             color: 'white'
                                         }}>{match.status}</span>
                                     </div>
@@ -266,7 +279,13 @@ function AdminPanel({ user }) {
                                     </div>
                                 )}
 
-                                {match.status !== 'completed' && (
+                                {match.status === 'cancelled' && (
+                                    <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#9ca3af', fontStyle: 'italic' }}>
+                                        🌧️ No result — match was abandoned/cancelled
+                                    </div>
+                                )}
+
+                                {match.status !== 'completed' && match.status !== 'cancelled' && (
                                     <div style={{ marginTop: '1rem' }}>
                                         {activeResultId === match.id ? (
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -284,10 +303,16 @@ function AdminPanel({ user }) {
                                                 <button className="btn btn-secondary" onClick={() => setActiveResultId(null)}>Cancel</button>
                                             </div>
                                         ) : (
-                                            <button className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '0.4rem 1rem' }}
-                                                onClick={() => { setActiveResultId(match.id); setResultForm({ status: 'completed' }); }}>
-                                                Update Result
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                <button className="btn btn-secondary" style={{ fontSize: '0.85rem', padding: '0.4rem 1rem' }}
+                                                    onClick={() => { setActiveResultId(match.id); setResultForm({ status: 'completed' }); }}>
+                                                    Update Result
+                                                </button>
+                                                <button className="btn" style={{ fontSize: '0.85rem', padding: '0.4rem 1rem', background: '#6b7280', border: 'none' }}
+                                                    onClick={() => handleCancelMatch(match.id)}>
+                                                    🌧️ Mark as Cancelled
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                 )}
