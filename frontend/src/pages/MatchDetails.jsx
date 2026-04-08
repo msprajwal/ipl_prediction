@@ -477,10 +477,17 @@ function MatchDetails({ user }) {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '500px', overflowY: 'auto', paddingRight: '0.5rem' }}>
                                     {publicPredictions.map((p, idx) => (
                                         <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: p.username === user.username ? '1px solid var(--primary)' : '1px solid var(--border-color)' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                                                <strong style={{ color: p.username === user.username ? 'var(--primary)' : 'white' }}>
-                                                    {p.username} {p.username === user.username && '(You)'}
-                                                </strong>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'flex-start' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <strong style={{ color: p.username === user.username ? 'var(--primary)' : 'white' }}>
+                                                        {p.username} {p.username === user.username && '(You)'}
+                                                    </strong>
+                                                    {p.submitted_at && (
+                                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                                                            On: {new Date(p.submitted_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })} IST
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <span style={{ color: '#10b981', fontWeight: 'bold' }}>+{p.points_earned} pts</span>
                                             </div>
 

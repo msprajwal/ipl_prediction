@@ -157,12 +157,13 @@ func GetPublicPredictions(c *gin.Context) {
 
 	// Sanitize output to only send necessary fields (no passwords!)
 	type PublicPredictionResponse struct {
-		Username             string `json:"username"`
-		PredictedWinner      string `json:"predicted_winner"`
-		PredictedRunScorer   string `json:"predicted_run_scorer"`
-		PredictedWicketTaker string `json:"predicted_wicket_taker"`
-		PredictedPOTM        string `json:"predicted_potm"`
-		PointsEarned         int    `json:"points_earned"`
+		Username             string    `json:"username"`
+		PredictedWinner      string    `json:"predicted_winner"`
+		PredictedRunScorer   string    `json:"predicted_run_scorer"`
+		PredictedWicketTaker string    `json:"predicted_wicket_taker"`
+		PredictedPOTM        string    `json:"predicted_potm"`
+		PointsEarned         int       `json:"points_earned"`
+		SubmittedAt          time.Time `json:"submitted_at"`
 	}
 
 	var response []PublicPredictionResponse
@@ -174,6 +175,7 @@ func GetPublicPredictions(c *gin.Context) {
 			PredictedWicketTaker: p.PredictedWicketTaker,
 			PredictedPOTM:        p.PredictedPOTM,
 			PointsEarned:         p.PointsEarned,
+			SubmittedAt:          p.UpdatedAt,
 		})
 	}
 
