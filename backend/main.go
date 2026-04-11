@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"ipl-prediction-backend/cron"
 	"ipl-prediction-backend/db"
 	"ipl-prediction-backend/models"
 	"ipl-prediction-backend/routes"
@@ -28,7 +29,7 @@ func main() {
 	database := db.InitDB()
 
 	// Auto-migrate database models
-	err = database.AutoMigrate(&models.User{}, &models.Match{}, &models.Prediction{})
+	err = database.AutoMigrate(&models.User{}, &models.Match{}, &models.Prediction{}, &models.PushSubscription{})
 	if err != nil {
 		log.Fatal("Failed to auto-migrate database schema:", err)
 	}
@@ -89,6 +90,9 @@ func main() {
 
 	// Setup API Routes
 	routes.SetupRouter(r)
+
+	// Start the push notification cron job
+	cron.StartNotificationCron()
 
 	// Background Goroutine to keep the server awake on Render Free Tier
 	// It pings its own public URL every 14 minutes (Render sleeps after 15 min of inactivity)

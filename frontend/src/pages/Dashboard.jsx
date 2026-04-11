@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 import api from '../api';
 import { format } from 'date-fns';
 import { getTeamLogo } from '../utils/logos';
+import { isPushSupported, subscribeToPush, unsubscribeFromPush, isCurrentlySubscribed, getPermissionState } from '../utils/pushNotifications';
 
 function Dashboard() {
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [pushSubscribed, setPushSubscribed] = useState(false);
+    const [pushLoading, setPushLoading] = useState(false);
+    const [pushError, setPushError] = useState('');
 
     useEffect(() => {
         const fetchMatches = async () => {
@@ -20,7 +24,35 @@ function Dashboard() {
             }
         };
         fetchMatches();
+
+        // Check current push subscription status
+        if (isPushSupported()) {
+            isCurrentlySubscribed().then(setPushSubscribed);
+        }
     }, []);
+
+    const handleTogglePush = async () => {
+        setPushLoading(true);
+        setPushError('');
+        try {
+            if (pushSubscribed) {
+                await unsubscribeFromPush();
+                setPushSubscribed(false);
+            } else {
+                await subscribeToPush();
+                setPushSubscribed(true);
+            }
+        } catch (err) {
+            console.error('Push notification error:', err);
+            if (getPermissionState() === 'denied') {
+                setPushError('Notifications blocked. Please enable them in your browser settings.');
+            } else {
+                setPushError(err.message || 'Failed to toggle notifications');
+            }
+        } finally {
+            setPushLoading(false);
+        }
+    };
 
     const getDisplayStatus = (match) => {
         if (match.status === 'upcoming' && new Date() >= new Date(match.match_date)) return 'ongoing';
@@ -39,10 +71,29 @@ function Dashboard() {
 
     return (
         <div>
-            <div style={{ marginBottom: '2rem' }}>
-                <h1 style={{ fontSize: '2rem' }}>IPL 2026 Schedule</h1>
-                <p style={{ color: 'var(--text-muted)' }}>Make your predictions before the match starts to earn points!</p>
+            <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                    <h1 style={{ fontSize: '2rem' }}>IPL 2026 Schedule</h1>
+                    <p style={{ color: 'var(--text-muted)' }}>Make your predictions before the match starts to earn points!</p>
+                </div>
+                {isPushSupported() && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
+                        <button
+                            className={`btn-notification ${pushSubscribed ? 'subscribed' : ''}`}
+                            onClick={handleTogglePush}
+                            disabled={pushLoading}
+                            title={pushSubscribed ? 'Disable match reminders' : 'Get notified before matches!'}
+                        >
+                            <span className="bell-icon">{pushSubscribed ? '🔔' : '🔕'}</span>
+                            <span>{pushLoading ? 'Please wait…' : pushSubscribed ? 'Reminders On' : 'Enable Reminders'}</span>
+                        </button>
+                        {pushError && (
+                            <span style={{ fontSize: '0.75rem', color: '#ef4444', maxWidth: '220px', textAlign: 'right' }}>{pushError}</span>
+                        )}
+                    </div>
+                )}
             </div>
+
 
             {loading ? (
                 <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>Loading matches...</div>

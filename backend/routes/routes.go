@@ -22,6 +22,9 @@ func SetupRouter(r *gin.Engine) {
 	api.GET("/leaderboard", middleware.AuthRequired(), handlers.GetLeaderboard)
 	api.GET("/points-history", middleware.AuthRequired(), handlers.GetPointsHistory)
 
+	// Push Notification routes (Public — returns VAPID public key)
+	api.GET("/notifications/vapid-key", handlers.GetVapidPublicKey)
+
 	// Protected routes (User)
 	userRoutes := api.Group("/user")
 	userRoutes.Use(middleware.AuthRequired())
@@ -31,6 +34,10 @@ func SetupRouter(r *gin.Engine) {
 		userRoutes.GET("/me", handlers.GetMe)
 		// Only view public predictions once match is completed
 		userRoutes.GET("/matches/:matchId/predictions", handlers.GetPublicPredictions)
+		// Push notification subscription management
+		userRoutes.POST("/notifications/subscribe", handlers.SubscribeToNotifications)
+		userRoutes.POST("/notifications/unsubscribe", handlers.UnsubscribeFromNotifications)
+		userRoutes.GET("/notifications/status", handlers.GetNotificationStatus)
 	}
 
 	// Admin routes (requires JWT auth + admin role)
