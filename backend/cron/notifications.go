@@ -32,11 +32,14 @@ func StartNotificationCron() {
 }
 
 func checkAndSendNotifications() {
-	now := time.Now().UTC()
+	now := time.Now()
 	windowStart := now.Add(20 * time.Minute) // 20 min from now
 	windowEnd := now.Add(30 * time.Minute)   // 30 min from now
 	// This 20-30 min window ensures the notification fires ~25 min before match start.
 	// With a 5-minute cron interval, every match will fall into this window exactly once.
+
+	log.Printf("[CRON] Checking for matches between %s and %s (server TZ: %s)",
+		windowStart.Format(time.RFC3339), windowEnd.Format(time.RFC3339), now.Location())
 
 	var matches []models.Match
 	result := db.DB.Where("status = ? AND match_date BETWEEN ? AND ?", "upcoming", windowStart, windowEnd).Find(&matches)
@@ -46,7 +49,13 @@ func checkAndSendNotifications() {
 	}
 
 	if len(matches) == 0 {
-		return // No matches starting soon
+		// Log next upcoming match for debugging
+		var nextMatch models.Match
+		if err := db.DB.Where("status = ?", "upcoming").Order("match_date asc").First(&nextMatch).Error; err == nil {
+			log.Printf("[CRON] No matches in window. Next upcoming: %s vs %s at %s",
+				nextMatch.Team1, nextMatch.Team2, nextMatch.MatchDate.Format(time.RFC3339))
+		}
+		return
 	}
 
 	vapidPrivateKey := os.Getenv("VAPID_PRIVATE_KEY")
@@ -112,7 +121,7 @@ func sendNotificationsForMatch(match models.Match, vapidPublicKey, vapidPrivateK
 			Subscriber:      vapidContact,
 			VAPIDPublicKey:  vapidPublicKey,
 			VAPIDPrivateKey: vapidPrivateKey,
-			TTL:             60, // seconds the push service should retain the message
+			TTL:             86400, // 24 hours — keep the message until user comes online
 		})
 
 		if err != nil {
