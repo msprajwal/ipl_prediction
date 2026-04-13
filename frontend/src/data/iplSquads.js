@@ -50,7 +50,8 @@ const iplSquads = {
         "Liam Livingstone", "Kamindu Mendis", "Brydon Carse", "Aniket Verma",
         "R Smaran", "Harsh Dubey", "Jaydev Unadkat", "Eshan Malinga",
         "Zeeshan Ansari", "Shivang Kumar", "Sakib Hussain", "Salil Arora",
-        "Onkar Tarmale", "Amit Kumar", "Shivam Mavi", "Jack Edwards"
+        "Onkar Tarmale", "Amit Kumar", "Shivam Mavi", "Jack Edwards",
+        "Praful Hinge"
     ],
     GT: [
         "Shubman Gill", "Rashid Khan", "Sai Sudharsan", "Jos Buttler",
