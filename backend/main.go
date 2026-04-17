@@ -37,6 +37,18 @@ func main() {
 	// Backfill: Assign existing users to 'family' group if not set
 	database.Model(&models.User{}).Where("\"group\" IS NULL OR \"group\" = ''").Update("group", "family")
 
+	// Backfill: Set PointsUpdatedAt for users who earned points from previous matches
+	var usersToBackfill []models.User
+	database.Where("total_points != 0 AND (points_updated_at IS NULL OR points_updated_at <= '2000-01-01')").Find(&usersToBackfill)
+	for _, u := range usersToBackfill {
+		var lastPred models.Prediction
+		if err := database.Where("user_id = ? AND points_earned != 0", u.ID).Order("updated_at desc").First(&lastPred).Error; err == nil {
+			database.Model(&u).Update("points_updated_at", lastPred.UpdatedAt)
+		} else {
+			database.Model(&u).Update("points_updated_at", u.UpdatedAt)
+		}
+	}
+
 	// Seed admin user if not exists (credentials from env vars)
 	adminUsername := os.Getenv("ADMIN_USERNAME")
 	adminPassword := os.Getenv("ADMIN_PASSWORD")
