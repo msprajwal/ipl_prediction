@@ -127,7 +127,10 @@ func UpdateMatchResult(c *gin.Context) {
 		// Add points to user
 		var user models.User
 		db.DB.First(&user, p.UserID)
-		user.TotalPoints += points
+		if points != 0 {
+			user.TotalPoints += points
+			user.PointsUpdatedAt = time.Now()
+		}
 		db.DB.Save(&user)
 	}
 
@@ -163,6 +166,7 @@ func UpdateMatchResult(c *gin.Context) {
 			// Only deduct points if pointsEarned is negative (for non-friends)
 			if pointsEarned < 0 {
 				u.TotalPoints += pointsEarned
+				u.PointsUpdatedAt = time.Now()
 				db.DB.Save(&u)
 			}
 		}

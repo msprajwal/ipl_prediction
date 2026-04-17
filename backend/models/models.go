@@ -11,10 +11,11 @@ type User struct {
 	Email        string    `gorm:"uniqueIndex;not null" json:"email"`
 	PasswordHash string    `gorm:"not null" json:"-"`
 	Role         string    `gorm:"type:varchar(20);default:'user'" json:"role"` // "user" or "admin"
-	Group        string    `gorm:"type:varchar(20);default:'family'" json:"group"` // "family" or "friends"
-	TotalPoints  int       `gorm:"default:0" json:"total_points"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	Group           string    `gorm:"type:varchar(20);default:'family'" json:"group"` // "family" or "friends"
+	TotalPoints     int       `gorm:"default:0" json:"total_points"`
+	PointsUpdatedAt time.Time `json:"points_updated_at"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 // Match represents an IPL match
