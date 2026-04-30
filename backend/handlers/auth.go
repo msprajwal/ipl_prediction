@@ -194,3 +194,49 @@ func GetMe(c *gin.Context) {
 		"total_points": user.TotalPoints,
 	})
 }
+
+type ChangePasswordInput struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required,min=6"`
+}
+
+func ChangeMyPassword(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	var input ChangePasswordInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := db.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if !utils.CheckPasswordHash(input.CurrentPassword, user.PasswordHash) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Current password is incorrect"})
+		return
+	}
+
+	hashedPassword, err := utils.HashPassword(input.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+
+	user.PasswordHash = hashedPassword
+	user.TokenVersion = user.TokenVersion + 1
+	if err := db.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		return
+	}
+
+	log.Printf("[ACTIVITY] User '%s' changed their password. Existing sessions invalidated.", user.Username)
+	c.JSON(http.StatusOK, gin.H{"message": "Password changed successfully. You will be logged out."})
+}

@@ -12,6 +12,7 @@ import Leaderboard from './pages/Leaderboard';
 import AdminPanel from './pages/AdminPanel';
 import Stats from './pages/Stats';
 import PastMatches from './pages/PastMatches';
+import Settings from './pages/Settings';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -70,6 +71,7 @@ function App() {
             <Route path="/leaderboard" element={isAuthenticated ? <Leaderboard user={user} /> : <Navigate to="/login" />} />
             <Route path="/stats" element={isAuthenticated ? <Stats user={user} /> : <Navigate to="/login" />} />
             <Route path="/past-matches" element={isAuthenticated ? <PastMatches user={user} /> : <Navigate to="/login" />} />
+            <Route path="/settings" element={isAuthenticated ? <Settings user={user} logout={logout} /> : <Navigate to="/login" />} />
             <Route path="/admin" element={isAuthenticated ? <AdminPanel user={user} /> : <Navigate to="/login" />} />
           </Routes>
         </main>
