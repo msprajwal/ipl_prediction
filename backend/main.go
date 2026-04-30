@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"ipl-prediction-backend/cron"
@@ -83,6 +84,34 @@ func main() {
 
 	// Setup Gin router
 	r := gin.Default()
+	// Configure trusted proxies so c.ClientIP() is reliable behind reverse proxies.
+	// Defaults to loopback only; set TRUST_ALL_PROXIES=true (or TRUSTED_PROXIES=...) in hosting environments.
+	trustAll := strings.EqualFold(os.Getenv("TRUST_ALL_PROXIES"), "true") || os.Getenv("TRUST_ALL_PROXIES") == "1"
+	if trustAll {
+		if err := r.SetTrustedProxies([]string{"0.0.0.0/0", "::/0"}); err != nil {
+			log.Printf("Failed to set trusted proxies (all): %v", err)
+		} else {
+			log.Printf("Trusted proxies: all (TRUST_ALL_PROXIES enabled)")
+		}
+	} else {
+		raw := strings.TrimSpace(os.Getenv("TRUSTED_PROXIES"))
+		var proxies []string
+		if raw == "" {
+			proxies = []string{"127.0.0.1", "::1"}
+		} else {
+			for _, p := range strings.Split(raw, ",") {
+				p = strings.TrimSpace(p)
+				if p != "" {
+					proxies = append(proxies, p)
+				}
+			}
+		}
+		if err := r.SetTrustedProxies(proxies); err != nil {
+			log.Printf("Failed to set trusted proxies: %v", err)
+		} else {
+			log.Printf("Trusted proxies: %s", strings.Join(proxies, ","))
+		}
+	}
 	r.Use(cors.New(cors.Config{
 		AllowOriginFunc: func(origin string) bool {
 			return true // Allow all origins dynamically (required when credentials are enabled)

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -20,9 +22,15 @@ type PredictionInput struct {
 }
 
 func SubmitPrediction(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	userIDRaw, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in context"})
+		return
+	}
+
+	userID, ok := userIDRaw.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type in context"})
 		return
 	}
 
@@ -52,31 +60,83 @@ func SubmitPrediction(c *gin.Context) {
 
 	// Create or update prediction
 	var prediction models.Prediction
-	result := db.DB.Where(&models.Prediction{UserID: userID.(uint), MatchID: input.MatchID}).First(&prediction)
+	result := db.DB.Where(&models.Prediction{UserID: userID, MatchID: input.MatchID}).First(&prediction)
 
 	prediction.PredictedWinner = input.PredictedWinner
 	prediction.PredictedRunScorer = input.PredictedRunScorer
 	prediction.PredictedWicketTaker = input.PredictedWicketTaker
 	prediction.PredictedPOTM = input.PredictedPOTM
 
+	event := "prediction_submitted"
 	if result.RowsAffected > 0 {
 		// Update existing
-		db.DB.Save(&prediction)
+		event = "prediction_updated"
+		if err := db.DB.Save(&prediction).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save prediction"})
+			return
+		}
 	} else {
 		// Create new
-		prediction.UserID = userID.(uint)
+		prediction.UserID = userID
 		prediction.MatchID = input.MatchID
-		db.DB.Create(&prediction)
+		if err := db.DB.Create(&prediction).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create prediction"})
+			return
+		}
 	}
 
 	// Get username for detailed logging
 	username, _ := c.Get("username")
-	if result.RowsAffected > 0 {
-		log.Printf("[ACTIVITY] User '%s' updated their prediction for %s vs %s (Match #%d)",
-			username, match.Team1, match.Team2, input.MatchID)
+	usernameStr := ""
+	if s, ok := username.(string); ok {
+		usernameStr = s
+	} else if username != nil {
+		usernameStr = fmt.Sprint(username)
+	}
+	if event == "prediction_updated" {
+		log.Printf("[ACTIVITY] User '%s' (IP: %s) updated their prediction for %s vs %s (Match #%d). Prediction: Winner=%s, RunScorer=%s, WicketTaker=%s, POTM=%s",
+			usernameStr, c.ClientIP(), match.Team1, match.Team2, input.MatchID,
+			input.PredictedWinner, input.PredictedRunScorer, input.PredictedWicketTaker, input.PredictedPOTM)
 	} else {
-		log.Printf("[ACTIVITY] User '%s' submitted a prediction for %s vs %s (Match #%d)",
-			username, match.Team1, match.Team2, input.MatchID)
+		log.Printf("[ACTIVITY] User '%s' (IP: %s) submitted a prediction for %s vs %s (Match #%d). Prediction: Winner=%s, RunScorer=%s, WicketTaker=%s, POTM=%s",
+			usernameStr, c.ClientIP(), match.Team1, match.Team2, input.MatchID,
+			input.PredictedWinner, input.PredictedRunScorer, input.PredictedWicketTaker, input.PredictedPOTM)
+	}
+
+	type predictionAuditLog struct {
+		Event                string    `json:"event"`
+		IP                   string    `json:"ip"`
+		UserID               uint      `json:"user_id"`
+		Username             string    `json:"username"`
+		MatchID              uint      `json:"match_id"`
+		Team1                string    `json:"team1"`
+		Team2                string    `json:"team2"`
+		PredictedWinner      string    `json:"predicted_winner"`
+		PredictedRunScorer   string    `json:"predicted_run_scorer"`
+		PredictedWicketTaker string    `json:"predicted_wicket_taker"`
+		PredictedPOTM        string    `json:"predicted_potm"`
+		SubmittedAt          time.Time `json:"submitted_at"`
+	}
+
+	entry := predictionAuditLog{
+		Event:                event,
+		IP:                   c.ClientIP(),
+		UserID:               userID,
+		Username:             usernameStr,
+		MatchID:              input.MatchID,
+		Team1:                match.Team1,
+		Team2:                match.Team2,
+		PredictedWinner:      input.PredictedWinner,
+		PredictedRunScorer:   input.PredictedRunScorer,
+		PredictedWicketTaker: input.PredictedWicketTaker,
+		PredictedPOTM:        input.PredictedPOTM,
+		SubmittedAt:          time.Now(),
+	}
+	if b, err := json.Marshal(entry); err == nil {
+		log.Printf("[PREDICTION_AUDIT] %s", string(b))
+	} else {
+		log.Printf("[PREDICTION_AUDIT] marshal_error=%q event=%s user_id=%d match_id=%d ip=%s",
+			err.Error(), event, userID, input.MatchID, c.ClientIP())
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Prediction submitted successfully", "prediction": prediction})
