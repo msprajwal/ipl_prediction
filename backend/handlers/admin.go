@@ -7,6 +7,7 @@ import (
 
 	"ipl-prediction-backend/db"
 	"ipl-prediction-backend/models"
+	"ipl-prediction-backend/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -290,4 +291,49 @@ func UpdateUserGroup(c *gin.Context) {
 	db.DB.Save(&user)
 
 	c.JSON(http.StatusOK, gin.H{"message": "User group updated", "user": user})
+}
+
+type ChangeUserPasswordInput struct {
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+// ChangeUserPassword allows the super-admin "msprajwal" to reset any user's password.
+// It also bumps the target user's TokenVersion, immediately invalidating all of
+// their existing JWT sessions so they must log in again with the new password.
+func ChangeUserPassword(c *gin.Context) {
+	requesterUsername, _ := c.Get("username")
+	if requesterUsername != "msprajwal" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only the super-admin can change passwords"})
+		return
+	}
+
+	userID := c.Param("id")
+
+	var input ChangeUserPasswordInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := db.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	hashedPassword, err := utils.HashPassword(input.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+
+	user.PasswordHash = hashedPassword
+	user.TokenVersion = user.TokenVersion + 1
+	if err := db.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		return
+	}
+
+	log.Printf("[ADMIN] Super-admin '%s' changed password for user '%s'. Existing sessions invalidated.", requesterUsername, user.Username)
+	c.JSON(http.StatusOK, gin.H{"message": "Password updated. The user has been logged out of all devices."})
 }

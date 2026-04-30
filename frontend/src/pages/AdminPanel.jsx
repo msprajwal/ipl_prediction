@@ -17,6 +17,9 @@ function AdminPanel({ user }) {
     const [editTimeId, setEditTimeId] = useState(null);
     const [editTimeValue, setEditTimeValue] = useState('');
 
+    const [pwdEditId, setPwdEditId] = useState(null);
+    const [newPwd, setNewPwd] = useState('');
+
     const handleUpdateMatchTime = async (matchId) => {
         if (!editTimeValue) return;
         try {
@@ -120,6 +123,24 @@ function AdminPanel({ user }) {
             fetchUsers(); // Refresh the list
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to update user group');
+        }
+    };
+
+    const handleChangeUserPassword = async (userId, username) => {
+        setError('');
+        setSuccess('');
+        if (!newPwd || newPwd.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+        }
+        if (!window.confirm(`Reset password for "${username}"? They will be logged out of all devices and must use the new password.`)) return;
+        try {
+            await api.patch(`/api/admin/users/${userId}/password`, { password: newPwd });
+            setSuccess(`Password updated for "${username}". They have been logged out of all devices.`);
+            setPwdEditId(null);
+            setNewPwd('');
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to change password');
         }
     };
 
@@ -358,17 +379,48 @@ function AdminPanel({ user }) {
                                         </span>
                                     </td>
                                     <td style={{ padding: '0.75rem', textAlign: 'right' }}>
-                                        {u.group === 'family' ? (
-                                            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem' }}
-                                                onClick={() => handleUpdateUserGroup(u.id, 'friends')}>
-                                                Move to Friends
-                                            </button>
-                                        ) : (
-                                            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem' }}
-                                                onClick={() => handleUpdateUserGroup(u.id, 'family')}>
-                                                Move to Family
-                                            </button>
-                                        )}
+                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap', alignItems: 'center' }}>
+                                            {u.group === 'family' ? (
+                                                <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem' }}
+                                                    onClick={() => handleUpdateUserGroup(u.id, 'friends')}>
+                                                    Move to Friends
+                                                </button>
+                                            ) : (
+                                                <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem' }}
+                                                    onClick={() => handleUpdateUserGroup(u.id, 'family')}>
+                                                    Move to Family
+                                                </button>
+                                            )}
+                                            {user?.username === 'msprajwal' && u.username !== 'msprajwal' && (
+                                                pwdEditId === u.id ? (
+                                                    <>
+                                                        <input
+                                                            type="password"
+                                                            className="form-control"
+                                                            placeholder="New password"
+                                                            value={newPwd}
+                                                            onChange={e => setNewPwd(e.target.value)}
+                                                            style={{ fontSize: '0.75rem', padding: '0.3rem 0.5rem', width: '140px' }}
+                                                            autoFocus
+                                                        />
+                                                        <button className="btn" style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem' }}
+                                                            onClick={() => handleChangeUserPassword(u.id, u.username)}>
+                                                            Save
+                                                        </button>
+                                                        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem' }}
+                                                            onClick={() => { setPwdEditId(null); setNewPwd(''); }}>
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <button className="btn btn-secondary"
+                                                        style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem', background: 'rgba(245,158,11,0.2)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.4)' }}
+                                                        onClick={() => { setPwdEditId(u.id); setNewPwd(''); }}>
+                                                        Change Password
+                                                    </button>
+                                                )
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

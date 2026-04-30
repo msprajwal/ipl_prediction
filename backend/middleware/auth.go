@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"ipl-prediction-backend/db"
+	"ipl-prediction-backend/models"
 	"ipl-prediction-backend/utils"
 
 	"github.com/gin-gonic/gin"
@@ -36,6 +38,20 @@ func AuthRequired() gin.HandlerFunc {
 		userIDFloat, ok := claims["user_id"].(float64)
 		if !ok {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			return
+		}
+
+		// Verify the token version matches the user's current version in the DB.
+		// This invalidates older tokens immediately when an admin changes a user's password.
+		var user models.User
+		if err := db.DB.Select("id", "token_version", "role").First(&user, uint(userIDFloat)).Error; err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User no longer exists"})
+			return
+		}
+
+		tokenVersionClaim, _ := claims["token_version"].(float64)
+		if int(tokenVersionClaim) != user.TokenVersion {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Session expired, please log in again"})
 			return
 		}
 

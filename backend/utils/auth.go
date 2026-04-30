@@ -42,10 +42,11 @@ func CheckPasswordHash(password, hash string) bool {
 // GenerateToken generates a JWT token for a given user ID
 func GenerateToken(user models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id":  user.ID,
-		"username": user.Username,
-		"role":     user.Role,
-		"exp":      time.Now().Add(time.Hour * 24 * 7).Unix(),
+		"user_id":       user.ID,
+		"username":      user.Username,
+		"role":          user.Role,
+		"token_version": user.TokenVersion,
+		"exp":           time.Now().Add(time.Hour * 24 * 7).Unix(),
 	})
 
 	tokenString, err := token.SignedString(jwtSecret)

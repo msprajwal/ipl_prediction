@@ -51,6 +51,7 @@ func SetupRouter(r *gin.Engine) {
 		adminRoutes.PATCH("/matches/:id/time", handlers.UpdateMatchTime)
 		adminRoutes.GET("/users", handlers.GetAllUsers)
 		adminRoutes.PATCH("/users/:id/group", handlers.UpdateUserGroup)
+		adminRoutes.PATCH("/users/:id/password", handlers.ChangeUserPassword)
 	}
 	// Catch-all: return 404 for non-API paths (frontend is served by Vercel)
 	r.NoRoute(func(c *gin.Context) {
