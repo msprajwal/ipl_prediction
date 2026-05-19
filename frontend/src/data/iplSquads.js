@@ -6,7 +6,7 @@ const iplSquads = {
         "Jamie Overton", "Ramakrishna Ghosh", "Prashant Veer", "Matthew Short",
         "Aman Khan", "Zak Foulkes", "Noor Ahmad", "Khaleel Ahmed",
         "Anshul Kamboj", "Gurjapneet Singh", "Nathan Ellis", "Shreyas Gopal",
-        "Mukesh Choudhary", "Akeal Hosein", "Matt Henry", "Rahul Chahar"
+        "Mukesh Choudhary", "Akeal Hosein", "Matt Henry", "Rahul Chahar", "Spencer Johnson"
     ],
     MI: [
         "Hardik Pandya", "Rohit Sharma", "Suryakumar Yadav", "Tilak Varma",
