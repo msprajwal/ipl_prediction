@@ -131,10 +131,7 @@ function MatchDetails({ user }) {
 
             {/* MATCH HEADER */}
             {(() => {
-                const isFinal = (
-                    (match.team1 === 'IND' && match.team2 === 'NZ') ||
-                    (match.team1 === 'NZ' && match.team2 === 'IND')
-                ) && new Date(match.match_date).toDateString() === new Date('2026-03-08').toDateString();
+                const isFinal = match.is_playoff && new Date(match.match_date).toDateString() === new Date('2026-05-31').toDateString();
 
                 return (
                     <div className="glass-panel" style={{
@@ -148,20 +145,24 @@ function MatchDetails({ user }) {
                             overflow: 'hidden'
                         } : {})
                     }}>
-                        {isFinal && (
+                        {match.is_playoff && (
                             <>
+                                {isFinal && (
+                                    <>
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: 0, left: '-100%',
+                                            width: '200%', height: '100%',
+                                            background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.1), transparent)',
+                                            animation: 'shimmer 3s infinite',
+                                            pointerEvents: 'none'
+                                        }} />
+                                        <style>{`@keyframes shimmer { 0% { transform: translateX(-50%); } 100% { transform: translateX(50%); } }`}</style>
+                                    </>
+                                )}
                                 <div style={{
-                                    position: 'absolute',
-                                    top: 0, left: '-100%',
-                                    width: '200%', height: '100%',
-                                    background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.1), transparent)',
-                                    animation: 'shimmer 3s infinite',
-                                    pointerEvents: 'none'
-                                }} />
-                                <style>{`@keyframes shimmer { 0% { transform: translateX(-50%); } 100% { transform: translateX(50%); } }`}</style>
-                                <div style={{
-                                    background: 'linear-gradient(90deg, #fbbf24, #f59e0b, #d97706)',
-                                    color: '#000',
+                                    background: isFinal ? 'linear-gradient(90deg, #fbbf24, #f59e0b, #d97706)' : 'linear-gradient(45deg, #f59e0b, #d97706)',
+                                    color: isFinal ? '#000' : '#fff',
                                     padding: '8px 24px',
                                     borderRadius: '0 0 12px 12px',
                                     display: 'inline-block',
@@ -171,7 +172,14 @@ function MatchDetails({ user }) {
                                     textTransform: 'uppercase',
                                     marginBottom: '1rem'
                                 }}>
-                                    🏆 ICC T20 WORLD CUP 2026 — FINAL 🏆
+                                    {(() => {
+                                        const dateStr = new Date(match.match_date).toDateString();
+                                        if (dateStr === new Date('2026-05-26').toDateString()) return '🥇 IPL 2026 — QUALIFIER 1 🥇';
+                                        else if (dateStr === new Date('2026-05-27').toDateString()) return '⚔️ IPL 2026 — ELIMINATOR ⚔️';
+                                        else if (dateStr === new Date('2026-05-29').toDateString()) return '🥈 IPL 2026 — QUALIFIER 2 🥈';
+                                        else if (dateStr === new Date('2026-05-31').toDateString()) return '🏆 IPL 2026 — FINAL 🏆';
+                                        else return '🏏 IPL 2026 — PLAYOFF 🏏';
+                                    })()}
                                 </div>
                             </>
                         )}
@@ -204,9 +212,16 @@ function MatchDetails({ user }) {
                                 )}
                             </div>
                         </div>
-                        {isFinal && (
-                            <p style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: '1rem', margin: '0.5rem 0' }}>
-                                ✨ The Grand Finale — Who lifts the trophy? ✨
+                        {match.is_playoff && (
+                            <p style={{ color: isFinal ? '#fbbf24' : '#f59e0b', fontWeight: 'bold', fontSize: '1rem', margin: '0.5rem 0' }}>
+                                {(() => {
+                                    const dateStr = new Date(match.match_date).toDateString();
+                                    if (dateStr === new Date('2026-05-26').toDateString()) return '🥇 The first qualifier — Who takes the direct route to the final? 🥇';
+                                    else if (dateStr === new Date('2026-05-27').toDateString()) return '⚔️ Do or die — One team goes home today! ⚔️';
+                                    else if (dateStr === new Date('2026-05-29').toDateString()) return '🥈 Second chance — Who joins the final? 🥈';
+                                    else if (dateStr === new Date('2026-05-31').toDateString()) return '✨ The Grand Finale — Who lifts the trophy? ✨';
+                                    else return '🏏 Playoff intensity — Double points at stake! 🏏';
+                                })()}
                             </p>
                         )}
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>
@@ -278,7 +293,7 @@ function MatchDetails({ user }) {
 
                             <form onSubmit={handlePredict}>
                                 <div className="form-group">
-                                    <label>Predicted Winner (2 pts)</label>
+                                    <label>Predicted Winner ({match.is_playoff ? '4' : '2'} pts)</label>
                                     <select
                                         className="form-control"
                                         value={formData.predicted_winner}
@@ -292,7 +307,7 @@ function MatchDetails({ user }) {
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Highest Runs (5 pts)</label>
+                                    <label>Highest Runs ({match.is_playoff ? '10' : '5'} pts)</label>
                                     <select
                                         className="form-control"
                                         value={formData.predicted_run_scorer}
@@ -314,7 +329,7 @@ function MatchDetails({ user }) {
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Highest Wickets (3 pts)</label>
+                                    <label>Highest Wickets ({match.is_playoff ? '6' : '3'} pts)</label>
                                     <select
                                         className="form-control"
                                         value={formData.predicted_wicket_taker}
@@ -336,7 +351,7 @@ function MatchDetails({ user }) {
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Player of the Match (10 pts)</label>
+                                    <label>Player of the Match ({match.is_playoff ? '20' : '10'} pts)</label>
                                     <select
                                         className="form-control"
                                         value={formData.predicted_potm}

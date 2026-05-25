@@ -107,8 +107,21 @@ function Dashboard() {
                     {[...matches].filter(m => m.status !== 'completed' && m.status !== 'cancelled').sort((a, b) => {
                         const order = { ongoing: 0, upcoming: 1, active: 2, completed: 3 };
                         return (order[getDisplayStatus(a)] ?? 9) - (order[getDisplayStatus(b)] ?? 9);
-                    }).map((match) => (
-                        <div key={match.id} className={`glass-panel ${getDisplayStatus(match) === 'ongoing' ? 'match-ongoing' : ''}`} style={{ display: 'flex', flexDirection: 'column' }}>
+                    }).map((match) => {
+                        const isFinalMatch = match.is_playoff && new Date(match.match_date).toDateString() === new Date('2026-05-31').toDateString();
+                        
+                        return (
+                            <div key={match.id} className={`glass-panel ${getDisplayStatus(match) === 'ongoing' ? 'match-ongoing' : ''}`} style={{ 
+                                display: 'flex', 
+                                flexDirection: 'column',
+                                ...(isFinalMatch ? {
+                                    border: '2px solid #fbbf24',
+                                    background: 'linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(217,119,6,0.1) 50%, rgba(251,191,36,0.15) 100%)',
+                                    boxShadow: '0 0 20px rgba(251,191,36,0.3), inset 0 0 20px rgba(251,191,36,0.05)',
+                                    position: 'relative',
+                                    overflow: 'hidden'
+                                } : {})
+                            }}>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                 <span style={{
@@ -146,6 +159,38 @@ function Dashboard() {
                                         )}
                                     </div>
                                 </div>
+                                {match.is_playoff && (
+                                    <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+                                        {(() => {
+                                            const dateStr = new Date(match.match_date).toDateString();
+                                            let label = 'Playoff Match (2x Points)';
+                                            let isFinal = false;
+
+                                            if (dateStr === new Date('2026-05-26').toDateString()) label = 'Qualifier 1 (2x Points)';
+                                            else if (dateStr === new Date('2026-05-27').toDateString()) label = 'Eliminator (2x Points)';
+                                            else if (dateStr === new Date('2026-05-29').toDateString()) label = 'Qualifier 2 (2x Points)';
+                                            else if (dateStr === new Date('2026-05-31').toDateString()) {
+                                                label = '🏆 FINAL (2x Points) 🏆';
+                                                isFinal = true;
+                                            }
+
+                                            return (
+                                                <span style={{
+                                                    background: isFinal ? 'linear-gradient(90deg, #fbbf24, #d97706)' : 'linear-gradient(45deg, #f59e0b, #d97706)',
+                                                    color: isFinal ? '#000' : 'white',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 'bold',
+                                                    textTransform: 'uppercase',
+                                                    boxShadow: isFinal ? '0 0 10px rgba(251,191,36,0.5)' : 'none'
+                                                }}>
+                                                    {label}
+                                                </span>
+                                            );
+                                        })()}
+                                    </div>
+                                )}
                                 {getDisplayStatus(match) === 'upcoming' && (
                                     <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: '#f59e0b' }}>
                                         ⏰ Predict by {format(new Date(match.match_date), 'hh:mm a, MMM dd')}
@@ -160,8 +205,23 @@ function Dashboard() {
                             >
                                 {match.status === 'completed' ? 'View Results & Predictions' : getDisplayStatus(match) === 'ongoing' ? 'View Predictions' : 'Make Prediction'}
                             </Link>
+                            
+                            {isFinalMatch && (
+                                <>
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: 0, left: '-100%',
+                                        width: '200%', height: '100%',
+                                        background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.1), transparent)',
+                                        animation: 'shimmer 3s infinite',
+                                        pointerEvents: 'none'
+                                    }} />
+                                    <style>{`@keyframes shimmer { 0% { transform: translateX(-50%); } 100% { transform: translateX(50%); } }`}</style>
+                                </>
+                            )}
                         </div>
-                    ))}
+                    );
+                    })}
                 </div>
             )}
         </div>
