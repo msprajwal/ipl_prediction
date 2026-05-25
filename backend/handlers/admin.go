@@ -121,6 +121,11 @@ func UpdateMatchResult(c *gin.Context) {
 			points += 10
 		}
 
+		// Double points for playoff matches
+		if match.IsPlayoff {
+			points *= 2
+		}
+
 		p.PointsEarned = points
 		db.DB.Save(&p)
 
@@ -180,6 +185,7 @@ type CreateMatchInput struct {
 	Team1     string `json:"team1" binding:"required"`
 	Team2     string `json:"team2" binding:"required"`
 	MatchDate string `json:"match_date" binding:"required"` // ISO string
+	IsPlayoff bool   `json:"is_playoff"`
 }
 
 func CreateMatch(c *gin.Context) {

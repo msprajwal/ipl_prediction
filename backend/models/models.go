@@ -26,6 +26,7 @@ type Match struct {
 	Team2             string    `gorm:"not null" json:"team2"`
 	MatchDate         time.Time `gorm:"not null" json:"match_date"`
 	Status            string    `gorm:"type:varchar(20);default:'upcoming'" json:"status"` // upcoming, active, completed
+	IsPlayoff         bool      `gorm:"default:false" json:"is_playoff"`
 	ActualWinner      string    `json:"actual_winner"`
 	ActualRunScorer   string    `json:"actual_run_scorer"`
 	ActualWicketTaker string    `json:"actual_wicket_taker"`

@@ -12,7 +12,7 @@ function AdminPanel({ user }) {
     const [success, setSuccess] = useState('');
 
     // New match form
-    const [newMatch, setNewMatch] = useState({ team1: '', team2: '', match_date: '', match_time: '19:30' });
+    const [newMatch, setNewMatch] = useState({ team1: '', team2: '', match_date: '', match_time: '19:30', is_playoff: false });
 
     const [editTimeId, setEditTimeId] = useState(null);
     const [editTimeValue, setEditTimeValue] = useState('');
@@ -74,10 +74,11 @@ function AdminPanel({ user }) {
             await api.post('/api/admin/matches', {
                 team1: newMatch.team1,
                 team2: newMatch.team2,
-                match_date: new Date(`${newMatch.match_date}T${timeValue}:00`).toISOString()
+                match_date: new Date(`${newMatch.match_date}T${timeValue}:00`).toISOString(),
+                is_playoff: newMatch.is_playoff
             });
             setSuccess('Match created successfully!');
-            setNewMatch({ team1: '', team2: '', match_date: '', match_time: '19:30' });
+            setNewMatch({ team1: '', team2: '', match_date: '', match_time: '19:30', is_playoff: false });
             fetchMatches();
         } catch (err) {
             setError(err.response?.data?.error || 'Failed to create match');
@@ -203,6 +204,11 @@ function AdminPanel({ user }) {
                                 onChange={e => setNewMatch({ ...newMatch, custom_time: e.target.value })} required />
                         </div>
                     )}
+                    <div className="form-group" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', alignSelf: 'center' }}>
+                        <input type="checkbox" id="is_playoff" checked={newMatch.is_playoff}
+                            onChange={e => setNewMatch({ ...newMatch, is_playoff: e.target.checked })} />
+                        <label htmlFor="is_playoff" style={{ margin: 0, cursor: 'pointer' }}>Playoff Match? (2x Points)</label>
+                    </div>
                     <button type="submit" className="btn" style={{ height: '48px' }}>+ Add Match</button>
                 </form>
             </div>
@@ -222,6 +228,14 @@ function AdminPanel({ user }) {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <strong style={{ fontSize: '1.2rem' }}>{match.team1} vs {match.team2}</strong>
+                                        {match.is_playoff && (
+                                            <span style={{
+                                                marginLeft: '0.5rem', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem',
+                                                fontWeight: 'bold', textTransform: 'uppercase',
+                                                background: 'linear-gradient(45deg, #f59e0b, #d97706)',
+                                                color: 'white'
+                                            }}>Playoff (2x)</span>
+                                        )}
                                         <span style={{
                                             marginLeft: '1rem', padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem',
                                             fontWeight: 'bold', textTransform: 'uppercase',
